@@ -21,22 +21,22 @@ namespace BlendJson.Tests
         {
             var settingsManager = new SettingsManager();
 
-            var (refs, json) = await settingsManager.LoadRefsAsync("Data\\Example1\\Settings.json");
+            var (refs, json) = await settingsManager.LoadRefsAsync("Data/Example1/Settings.json");
 
-            CompareRefs([new JsonReference("Colors", "Data\\Example1\\Colors.json"),
-                new JsonReference("Websites", "Data\\Example1\\Websites.json"),
-                new JsonReference("RemoteCredentials", "Data\\Example1\\RemoteCredentials.json")], refs);
+            CompareRefs([new JsonReference("Colors", Path.Combine("Data","Example1","Colors.json")),
+                new JsonReference("Websites", Path.Combine("Data","Example1","Websites.json")),
+                new JsonReference("RemoteCredentials", Path.Combine("Data","Example1","RemoteCredentials.json"))], refs);
 
-            Assert.AreEqual(await File.ReadAllTextAsync("Data\\Example1\\Settings.json"), json.ToString());
+            Assert.AreEqual(await File.ReadAllTextAsync("Data/Example1/Settings.json"), json.ToString());
 
 
-            (refs, json) = await settingsManager.LoadRefsAsync("Data\\ComplexTest\\Settings.json");
+            (refs, json) = await settingsManager.LoadRefsAsync("Data/ComplexTest/Settings.json");
 
-            CompareRefs([new JsonReference("Items", "Data\\ComplexTest\\Items.json"),
-                new JsonReference("Address", "Data\\ComplexTest\\Address.json"),
-                new JsonReference("SomeObject", "Data\\ComplexTest\\SomeObject.json"),
-                new JsonReference("Merge1","Data\\ComplexTest\\Merge1.json"),
-                new JsonReference("Merge2","Data\\ComplexTest\\Merge2.json")], refs);
+            CompareRefs([new JsonReference("Items", Path.Combine("Data","ComplexTest","Items.json")),
+                new JsonReference("Address", Path.Combine("Data","ComplexTest","Address.json")),
+                new JsonReference("SomeObject", Path.Combine("Data","ComplexTest","SomeObject.json")),
+                new JsonReference("Merge1",Path.Combine("Data","ComplexTest","Merge1.json")),
+                new JsonReference("Merge2",Path.Combine("Data","ComplexTest","Merge2.json"))], refs);
 
         }
     }

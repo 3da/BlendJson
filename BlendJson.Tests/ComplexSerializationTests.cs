@@ -54,7 +54,7 @@ namespace BlendJson.Tests
 
             await serializer.SaveJsonAsync(data, "TmpResult.json");
 
-            SerializeTests.CompareJsons(@"Data\SerializationDeep\ExpectedSettings.json", "TmpResult.json");
+            SerializeTests.CompareJsons("Data/SerializationDeep/ExpectedSettings.json", "TmpResult.json");
 
             var manager = new SettingsManager();
 
@@ -103,12 +103,12 @@ namespace BlendJson.Tests
 
             var serializer = new SettingsSerializer();
 
-            await serializer.SaveJsonAsync(_settings, @"Tmp\settings.json");
+            await serializer.SaveJsonAsync(_settings, "Tmp/settings.json");
 
-            SerializeTests.CompareJsons(@"Data\SerializationDeep2\ExpectedSettings.json", @"Tmp\settings.json");
-            SerializeTests.CompareJsons(@"Data\SerializationDeep2\Ext0000.json", @"Tmp\Ext0000.json");
-            SerializeTests.CompareBytes(@"Data\SerializationDeep2\Data0001.bin", @"Tmp\Data0001.bin");
-            SerializeTests.CompareBytes(@"Data\SerializationDeep2\Data0002.bin", @"Tmp\Data0002.bin");
+            SerializeTests.CompareJsons("Data/SerializationDeep2/ExpectedSettings.json", "Tmp/settings.json");
+            SerializeTests.CompareJsons("Data/SerializationDeep2/Ext0000.json", "Tmp/Ext0000.json");
+            SerializeTests.CompareBytes("Data/SerializationDeep2/Data0001.bin", "Tmp/Data0001.bin");
+            SerializeTests.CompareBytes("Data/SerializationDeep2/Data0002.bin", "Tmp/Data0002.bin");
         }
 
         [TestMethod]
@@ -124,14 +124,14 @@ namespace BlendJson.Tests
 
             var serializer = new SettingsSerializer();
 
-            await serializer.SaveZipAsync(_settings, @"Tmp.zip");
+            await serializer.SaveZipAsync(_settings, "Tmp.zip");
 
             ZipFile.ExtractToDirectory("Tmp.zip", "Tmp");
 
-            SerializeTests.CompareJsons(@"Data\SerializationDeep2\Main.json", @"Tmp\Main.json");
-            SerializeTests.CompareJsons(@"Data\SerializationDeep2\Ext0000Zip.json", @"Tmp\Ext0000.json");
-            SerializeTests.CompareBytes(@"Data\SerializationDeep2\Data0001.bin", @"Tmp\Data0001.bin");
-            SerializeTests.CompareBytes(@"Data\SerializationDeep2\Data0002.bin", @"Tmp\Data0002.bin");
+            SerializeTests.CompareJsons("Data/SerializationDeep2/Main.json", "Tmp/Main.json");
+            SerializeTests.CompareJsons("Data/SerializationDeep2/Ext0000Zip.json", "Tmp/Ext0000.json");
+            SerializeTests.CompareBytes("Data/SerializationDeep2/Data0001.bin", "Tmp/Data0001.bin");
+            SerializeTests.CompareBytes("Data/SerializationDeep2/Data0002.bin", "Tmp/Data0002.bin");
         }
     }
 }

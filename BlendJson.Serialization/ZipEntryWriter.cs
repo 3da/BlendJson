@@ -8,22 +8,20 @@ namespace BlendJson.Serialization
     public class ZipEntryWriter : IWriter
     {
         private readonly ZipArchive _zipArchive;
-        private readonly Uri _baseUri;
+        private readonly string _basePath;
 
-        public ZipEntryWriter(ZipArchive zipArchive, Uri baseUri)
+        public ZipEntryWriter(ZipArchive zipArchive, string basePath)
         {
             _zipArchive = zipArchive;
-            _baseUri = baseUri;
+            _basePath = basePath;
         }
 
 
         public void Write(string path, params Stream[] streams)
         {
-            var uri = new Uri(path);
+            var relative = Path.GetRelativePath(_basePath, path);
 
-            var relative = _baseUri.MakeRelativeUri(uri);
-
-            var entry = _zipArchive.CreateEntry(relative.ToString().Replace('/', Path.DirectorySeparatorChar));
+            var entry = _zipArchive.CreateEntry(relative);
 
             using (var entryStream = entry.Open())
             {

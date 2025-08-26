@@ -22,13 +22,13 @@ namespace BlendJson.Tests
         [TestMethod]
         public async Task TestComplexSettings()
         {
-            await TestAsync("Data\\ComplexTest\\ExpectedSettings.json", "Data\\ComplexTest\\Settings.json");
+            await TestAsync(Path.Combine("Data", "ComplexTest", "ExpectedSettings.json"), Path.Combine("Data", "ComplexTest", "Settings.json"));
         }
 
         [TestMethod]
         public async Task TestMergeTwoTrees()
         {
-            await TestAsync("Data\\TwoTrees\\ExpectedSettings.json", "Data\\TwoTrees\\Settings.json");
+            await TestAsync(Path.Combine("Data", "TwoTrees", "ExpectedSettings.json"), Path.Combine("Data", "TwoTrees", "Settings.json"));
         }
     }
 }

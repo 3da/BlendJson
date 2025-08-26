@@ -77,25 +77,25 @@ i",
                 Thread.Sleep(100);
             }
 
-            await serializer.SaveJsonAsync(_settings, @"Tmp\settings.json");
+            await serializer.SaveJsonAsync(_settings, "Tmp/settings.json");
 
-            Assert.IsTrue(File.Exists(@"Tmp\settings.json"));
-            Assert.IsTrue(File.Exists(@"Tmp\Users.json"));
-            Assert.IsTrue(File.Exists(@"Tmp\Roles.json"));
-            Assert.IsTrue(File.Exists(@"Tmp\Data.bin"));
-            Assert.IsTrue(File.Exists(@"Tmp\Text.txt"));
-            Assert.IsTrue(File.Exists(@"Tmp\Lines.txt"));
+            Assert.IsTrue(File.Exists("Tmp/settings.json"));
+            Assert.IsTrue(File.Exists("Tmp/Users.json"));
+            Assert.IsTrue(File.Exists("Tmp/Roles.json"));
+            Assert.IsTrue(File.Exists("Tmp/Data.bin"));
+            Assert.IsTrue(File.Exists("Tmp/Text.txt"));
+            Assert.IsTrue(File.Exists("Tmp/Lines.txt"));
 
-            CompareJsons(@"Data\Serialization\ExpectedSettings.json", @"Tmp\settings.json");
-            CompareJsons(@"Data\Serialization\Users.json", @"Tmp\Users.json");
-            CompareJsons(@"Data\Serialization\Roles.json", @"Tmp\Roles.json");
-            CompareBytes(@"Data\Serialization\Data.bin", @"Tmp\Data.bin");
-            CompareLines(@"Data\Serialization\Text.txt", @"Tmp\Text.txt");
-            CompareLines(@"Data\Serialization\Lines.txt", @"Tmp\Lines.txt");
+            CompareJsons("Data/Serialization/ExpectedSettings.json", "Tmp/settings.json");
+            CompareJsons("Data/Serialization/Users.json", "Tmp/Users.json");
+            CompareJsons("Data/Serialization/Roles.json", "Tmp/Roles.json");
+            CompareBytes("Data/Serialization/Data.bin", "Tmp/Data.bin");
+            CompareLines("Data/Serialization/Text.txt", "Tmp/Text.txt");
+            CompareLines("Data/Serialization/Lines.txt", "Tmp/Lines.txt");
 
             var manager = new SettingsManager();
 
-            var jsonSettings = await manager.LoadSettingsAsync(@"Tmp\settings");
+            var jsonSettings = await manager.LoadSettingsAsync("Tmp/settings");
             var typedSettings = jsonSettings.ToObject<Settings>();
 
             Assert.AreEqual(JsonConvert.SerializeObject(_settings), JsonConvert.SerializeObject(typedSettings));
@@ -106,7 +106,7 @@ i",
         {
             var serializer = new SettingsSerializer();
 
-            await serializer.SaveZipAsync(_settings, @"Tmp.zip");
+            await serializer.SaveZipAsync(_settings, "Tmp.zip");
 
             var tmpDir = new DirectoryInfo("Tmp");
             if (tmpDir.Exists)
@@ -117,23 +117,23 @@ i",
 
             ZipFile.ExtractToDirectory("Tmp.zip", "Tmp");
 
-            Assert.IsTrue(File.Exists(@"Tmp\Main.json"));
-            Assert.IsTrue(File.Exists(@"Tmp\Users.json"));
-            Assert.IsTrue(File.Exists(@"Tmp\Roles.json"));
-            Assert.IsTrue(File.Exists(@"Tmp\Data.bin"));
-            Assert.IsTrue(File.Exists(@"Tmp\Text.txt"));
-            Assert.IsTrue(File.Exists(@"Tmp\Lines.txt"));
+            Assert.IsTrue(File.Exists("Tmp/Main.json"));
+            Assert.IsTrue(File.Exists("Tmp/Users.json"));
+            Assert.IsTrue(File.Exists("Tmp/Roles.json"));
+            Assert.IsTrue(File.Exists("Tmp/Data.bin"));
+            Assert.IsTrue(File.Exists("Tmp/Text.txt"));
+            Assert.IsTrue(File.Exists("Tmp/Lines.txt"));
 
-            CompareJsons(@"Data\Serialization\Main.json", @"Tmp\Main.json");
-            CompareJsons(@"Data\Serialization\Users.json", @"Tmp\Users.json");
-            CompareJsons(@"Data\Serialization\Roles.json", @"Tmp\Roles.json");
-            CompareBytes(@"Data\Serialization\Data.bin", @"Tmp\Data.bin");
-            CompareLines(@"Data\Serialization\Text.txt", @"Tmp\Text.txt");
-            CompareLines(@"Data\Serialization\Lines.txt", @"Tmp\Lines.txt");
+            CompareJsons("Data/Serialization/Main.json", "Tmp/Main.json");
+            CompareJsons("Data/Serialization/Users.json", "Tmp/Users.json");
+            CompareJsons("Data/Serialization/Roles.json", "Tmp/Roles.json");
+            CompareBytes("Data/Serialization/Data.bin", "Tmp/Data.bin");
+            CompareLines("Data/Serialization/Text.txt", "Tmp/Text.txt");
+            CompareLines("Data/Serialization/Lines.txt", "Tmp/Lines.txt");
 
             var manager = new SettingsManager();
 
-            var jsonSettings = await manager.LoadSettingsAsync(@"Tmp.zip");
+            var jsonSettings = await manager.LoadSettingsAsync("Tmp.zip");
             var typedSettings = jsonSettings.ToObject<Settings>();
 
             Assert.AreEqual(JsonConvert.SerializeObject(_settings), JsonConvert.SerializeObject(typedSettings));

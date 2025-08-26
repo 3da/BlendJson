@@ -129,12 +129,6 @@
     <None Update="Data\LoadWithParams\Settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Data\MongoDbTest\Settings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Data\MongoDbTest\ExpectedSettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Data\SerializationDeep2\Data0001.bin">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

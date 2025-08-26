@@ -17,9 +17,9 @@ namespace BlendJson.Tests
 
             settingsManager.AddDataSource<HttpDataSource>();
 
-			var settings = await settingsManager.LoadSettingsAsync(@"Data\HttpTest\Settings.json");
+			var settings = await settingsManager.LoadSettingsAsync("Data/HttpTest/Settings.json");
 
-			var expectedSettings = JToken.Parse(await File.ReadAllTextAsync(@"Data\HttpTest\ExpectedSettings.json"));
+			var expectedSettings = JToken.Parse(await File.ReadAllTextAsync("Data/HttpTest/ExpectedSettings.json"));
 
 			Assert.IsTrue(JToken.DeepEquals(expectedSettings, settings));
 		}

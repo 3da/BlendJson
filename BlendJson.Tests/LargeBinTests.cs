@@ -63,15 +63,15 @@ namespace BlendJson.Tests
             var expected = Encoding.UTF8.GetBytes("test1488");
 
             var manager = new SettingsManager();
-            var settings = await manager.LoadSettingsAsync<Settings2>(@"Data\LoadModes\Settings2.json");
+            var settings = await manager.LoadSettingsAsync<Settings2>("Data/LoadModes/Settings2.json");
 
             Assert.IsTrue(expected.SequenceEqual(settings.Binary[0]));
 
-            var settings3 = await manager.LoadSettingsAsync<Settings3>(@"Data\LoadModes\Settings2.json");
+            var settings3 = await manager.LoadSettingsAsync<Settings3>("Data/LoadModes/Settings2.json");
 
             Assert.IsTrue(expected.SequenceEqual(settings3.Binary));
 
-            settings = await manager.LoadSettingsAsync<Settings2>(@"Data\LoadModes\Settings4.json");
+            settings = await manager.LoadSettingsAsync<Settings2>("Data/LoadModes/Settings4.json");
 
             Assert.IsTrue(expected.SequenceEqual(settings.Binary[0]));
 

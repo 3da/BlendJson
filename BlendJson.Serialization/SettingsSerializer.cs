@@ -30,7 +30,7 @@ namespace BlendJson.Serialization
         {
             await using var stream = File.Create(path);
             using var archive = new ZipArchive(stream, ZipArchiveMode.Create);
-            var context = new SerializationContext(new ZipEntryWriter(archive, new Uri(Directory.GetCurrentDirectory() + "\\")))
+            var context = new SerializationContext(new ZipEntryWriter(archive, Directory.GetCurrentDirectory()))
             {
                 GlobalContext = new GlobalContext(),
                 JsonConverters = GetJsonConverters()
