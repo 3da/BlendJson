@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BlendJson.DataSources;
+using BlendJson.ParseModes;
 using Newtonsoft.Json;
 
 namespace BlendJson
@@ -14,6 +15,8 @@ namespace BlendJson
         public bool DisableProcessors { get; set; }
         public IDictionary<string, object> Parameters { get; set; }
         public IFsProvider FsProvider { get; set; }
+        internal IParseMode ParseMode { get; set; }
+        public int Depth { get; internal set; }
 
         public ParseContext Clone()
         {
@@ -25,7 +28,9 @@ namespace BlendJson
                 Serializer = Serializer,
                 DisableProcessors = DisableProcessors,
                 Parameters = Parameters != null ? new Dictionary<string, object>(Parameters) : null,
-                FsProvider = FsProvider
+                FsProvider = FsProvider,
+                ParseMode = ParseMode,
+                Depth = Depth + 1
             };
         }
 

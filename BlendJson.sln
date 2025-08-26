@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlendJson.DocumentationLib.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlendJson.Templating", "BlendJson.Templating\BlendJson.Templating.csproj", "{8EC1C1AC-3CFF-4789-B8FA-C2D740CAA0A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlendJson.ExternalDataSources", "BlendJson.ExternalDataSources\BlendJson.ExternalDataSources.csproj", "{9EFE773B-B721-463B-A4DA-579FE4A1F33A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{8EC1C1AC-3CFF-4789-B8FA-C2D740CAA0A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EC1C1AC-3CFF-4789-B8FA-C2D740CAA0A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EC1C1AC-3CFF-4789-B8FA-C2D740CAA0A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EFE773B-B721-463B-A4DA-579FE4A1F33A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EFE773B-B721-463B-A4DA-579FE4A1F33A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EFE773B-B721-463B-A4DA-579FE4A1F33A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EFE773B-B721-463B-A4DA-579FE4A1F33A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

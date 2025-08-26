@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using BlendJson.DataSources;
+using BlendJson.ParseModes;
 using BlendJson.SpecificProcessors.Options;
 using Newtonsoft.Json.Linq;
 
@@ -52,6 +53,11 @@ namespace BlendJson.SpecificProcessors
 
 
                 var otherToken = await context.Manager.LoadSettingsAsync(mergePath, context, LoadMode.Json, token);
+
+                if (context.ParseMode is GetRefsMode)
+                {
+                    continue;
+                }
 
                 var otherObj = otherToken as JObject;
 

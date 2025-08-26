@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BlendJson.DataSources;
+using BlendJson.ParseModes;
 using BlendJson.SpecificProcessors.Options;
 using Newtonsoft.Json.Linq;
 
@@ -42,7 +43,7 @@ namespace BlendJson.SpecificProcessors
 
             var otherArray = otherToken as JArray;
 
-            if (otherArray == null)
+            if (otherArray == null && context.ParseMode is MergeMode)
                 throw new SettingsException($"Merge path {options.DataSource} must be JArray");
 
 

@@ -51,11 +51,7 @@ namespace BlendJson.Serialization
             _jsonSerializer = JsonSerializer.Create(new JsonSerializerSettings()
             {
                 NullValueHandling = NullValueHandling.Ignore,
-                Converters = new List<JsonConverter>()
-                {
-                    new StringEnumConverter(),
-                    new JsonImplConverter(null)
-                }
+                Converters = context.JsonConverters
             });
         }
 

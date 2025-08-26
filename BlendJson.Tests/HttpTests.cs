@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using BlendJson.ExternalDataSources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -13,6 +14,8 @@ namespace BlendJson.Tests
 		public async Task Test()
 		{
 			var settingsManager = new SettingsManager();
+
+            settingsManager.AddDataSource<HttpDataSource>();
 
 			var settings = await settingsManager.LoadSettingsAsync(@"Data\HttpTest\Settings.json");
 

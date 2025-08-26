@@ -22,6 +22,7 @@ namespace BlendJson.Serialization
         public GlobalContext GlobalContext { get; set; }
 
         public IWriter Writer { get; }
+        public List<JsonConverter> JsonConverters { get; set; }
 
         public async Task SaveExternalAsync(SerializationContext context, string path, LoadMode mode, object value)
         {
@@ -40,7 +41,8 @@ namespace BlendJson.Serialization
             var newContext = new SerializationContext(context.Writer)
             {
                 WorkDir = WorkDir ?? dir.FullName,
-                GlobalContext = context.GlobalContext
+                GlobalContext = context.GlobalContext,
+                JsonConverters = context.JsonConverters
             };
 
 
@@ -48,10 +50,7 @@ namespace BlendJson.Serialization
             {
                 ContractResolver = new MySolver(newContext),
                 NullValueHandling = NullValueHandling.Ignore,
-                Converters = new List<JsonConverter>()
-                {
-                    new JsonImplConverter(null)
-                },
+                Converters = JsonConverters,
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 Formatting = Formatting.Indented
             });

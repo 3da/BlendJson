@@ -13,10 +13,13 @@ namespace BlendJson.TypeResolving
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public JsonImplConverter(IServiceProvider serviceProvider)
+        public JsonImplConverter(IServiceProvider serviceProvider = null)
         {
             _serviceProvider = serviceProvider;
         }
+
+        public Type Interface { get; init; }
+        public Type[] Implementations { get; init; }
 
         public override bool CanRead => true;
         public override bool CanWrite => true;
@@ -77,11 +80,7 @@ namespace BlendJson.TypeResolving
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var types = (objectType.IsInterface
-                ? GetTypes()
-                    .Where(p => objectType.IsAssignableFrom(p))
-                : GetTypes()
-                    .Where(t => t.IsSubclassOf(objectType) || objectType == t)).ToArray();
+            var types = LoadPossibleImplementations(objectType);
 
             Type type;
 
@@ -130,8 +129,25 @@ namespace BlendJson.TypeResolving
             return result;
         }
 
+        private Type[] LoadPossibleImplementations(Type objectType)
+        {
+            if (Implementations != null)
+                return Implementations;
+
+            return (objectType.IsInterface
+                ? GetTypes()
+                    .Where(p => objectType.IsAssignableFrom(p))
+                : GetTypes()
+                    .Where(t => t.IsSubclassOf(objectType) || objectType == t)).ToArray();
+        }
+
         public override bool CanConvert(Type objectType)
         {
+            if (Interface != null)
+            {
+                return objectType == Interface || Implementations.Contains(objectType);
+            }
+
             return objectType.GetCustomAttribute(typeof(ResolveTypeAttribute), true) != null
                 || objectType.GetInterfaces().Any(i => i.GetCustomAttribute(typeof(ResolveTypeAttribute)) != null);
         }

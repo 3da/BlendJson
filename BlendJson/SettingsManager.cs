@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using BlendJson.DataSources;
+using BlendJson.ParseModes;
 using BlendJson.SpecificProcessors;
 using BlendJson.TypeResolving;
 using Newtonsoft.Json;
@@ -16,6 +18,7 @@ namespace BlendJson
     public class SettingsManager
     {
         private readonly List<ISpecificProcessor> _specialProcessors;
+        private readonly List<Type> _dataSourceTypes;
 
         public IServiceProvider ServiceProvider { get; set; }
 
@@ -23,18 +26,25 @@ namespace BlendJson
 
         public SettingsManager(params ISpecificProcessor[] processors)
         {
-            _specialProcessors = new List<ISpecificProcessor>
-            {
+            _specialProcessors =
+            [
                 new LoadProcessor(),
                 new MergeProcessor(),
                 new MergeArrayProcessor(),
                 new ConcatArrayProcessor(),
                 new UnionArrayProcessor(),
-                new ExceptArrayProcessor(),
+                new ExceptArrayProcessor()
 
-            };
+            ];
 
             _specialProcessors.AddRange(processors);
+
+            _dataSourceTypes = GetDefaultDataSources();
+        }
+
+        public static List<Type> GetDefaultDataSources()
+        {
+            return [typeof(FileDataSource), typeof(ZipDataSource)];
         }
 
         private List<JsonConverter> Converters
@@ -43,6 +53,11 @@ namespace BlendJson
             {
                 var result = new List<JsonConverter>(3)
                 {
+                    new JsonImplConverter(ServiceProvider)
+                    {
+                        Interface = typeof(IDataSource),
+                        Implementations = _dataSourceTypes.ToArray()
+                    },
                     new JsonImplConverter(ServiceProvider),
                     new ByteArrayConverter()
                 };
@@ -59,20 +74,34 @@ namespace BlendJson
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            (var jToken, dataSource) = await dataSource.LoadAsync(context.DataSource, mode, context, token);
-
-            return await ProcessJTokenAsync(jToken, new ParseContext
+            if (context.ParseMode is MergeMode || context.Depth == 0)
             {
-                DataSource = dataSource,
-                Manager = this,
-                DisableProcessors = context.DisableProcessors,
-                Serializer = JsonSerializer.Create(new JsonSerializerSettings()
+                (var jToken, dataSource) = await dataSource.LoadAsync(context.DataSource, mode, context, token);
+
+                return await ProcessJTokenAsync(jToken, new ParseContext
                 {
-                    Converters = Converters
-                }),
-                Parameters = context.Parameters,
-                FsProvider = context.FsProvider
-            }, token);
+                    DataSource = dataSource,
+                    Manager = this,
+                    DisableProcessors = context.DisableProcessors,
+                    Serializer = JsonSerializer.Create(new JsonSerializerSettings()
+                    {
+                        Converters = Converters
+                    }),
+                    Parameters = context.Parameters,
+                    FsProvider = context.FsProvider,
+                    ParseMode = context.ParseMode,
+                    Depth = context.Depth + 1
+                }, token);
+            }
+
+            if (context.ParseMode is GetRefsMode getRefsMode && dataSource is FileDataSource fileDataSource)
+            {
+                var (path, _) = fileDataSource.GetActualPath(context.DataSource, mode, context, token);
+                getRefsMode.AddRef(new JsonReference(fileDataSource.Path, path));
+            }
+
+            return null;
+
         }
 
         public async Task<JToken> LoadSettingsAsync(IDataSource dataSource, CancellationToken token = default)
@@ -81,11 +110,29 @@ namespace BlendJson
             {
                 Manager = this,
                 DataSource = dataSource,
-                FsProvider = FsProvider
+                FsProvider = FsProvider,
+                ParseMode = new MergeMode()
             };
 
             return await LoadSettingsAsync(dataSource, parseContext, LoadMode.Json, token);
         }
+
+        public async Task<(JsonReference[] References, JToken Json)> LoadRefsAsync(IDataSource dataSource, CancellationToken token = default)
+        {
+            var getRefsMode = new GetRefsMode();
+            var parseContext = new ParseContext()
+            {
+                Manager = this,
+                DataSource = dataSource,
+                FsProvider = FsProvider,
+                ParseMode = getRefsMode
+            };
+
+            var jToken = await LoadSettingsAsync(dataSource, parseContext, LoadMode.Json, token);
+            return (getRefsMode.References, jToken);
+        }
+
+
 
         public async Task<JToken> LoadSettingsAsync(string path, string workDir = null, CancellationToken token = default)
         {
@@ -108,6 +155,11 @@ namespace BlendJson
         public async Task<JToken> LoadSettingsJsonAsync(string path, string workDir = null, CancellationToken token = default)
         {
             return await LoadSettingsAsync(new FileDataSource() { Path = path, WorkDir = workDir }, token);
+        }
+
+        public async Task<(JsonReference[] References, JToken Json)> LoadRefsAsync(string path, string workDir = null, CancellationToken token = default)
+        {
+            return await LoadRefsAsync(new FileDataSource() { Path = path, WorkDir = workDir }, token);
         }
 
         public async Task<T> LoadSettingsJsonAsync<T>(string path, string workDir = null, CancellationToken token = default)
@@ -172,7 +224,7 @@ namespace BlendJson
                 if (p == null)
                     continue;
 
-                if (context.MergeArray)
+                if (context.MergeArray && context.ParseMode is MergeMode)
                 {
                     foreach (var child in p.Children())
                     {
@@ -201,10 +253,12 @@ namespace BlendJson
                 })
                 .Where(q => q.Processor != null).ToList();
 
-
-            foreach (var specialProperty in specialProperties.Select(q => q.Token))
+            if (context.ParseMode is MergeMode)
             {
-                specialProperty.Remove();
+                foreach (var specialProperty in specialProperties.Select(q => q.Token))
+                {
+                    specialProperty.Remove();
+                }
             }
 
             JToken result = jObject;
@@ -234,6 +288,10 @@ namespace BlendJson
                 }
             }
 
+            if (context.ParseMode is GetRefsMode)
+            {
+                result = jObject;
+            }
 
             if (result is JObject jobj2)
             {
@@ -244,6 +302,16 @@ namespace BlendJson
             }
 
             return result;
+        }
+
+        public void AddDataSource<T>()
+        {
+            _dataSourceTypes.Add(typeof(T));
+        }
+
+        public void AddDataSource(Type t)
+        {
+            _dataSourceTypes.Add(t);
         }
 
     }

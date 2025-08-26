@@ -68,7 +68,6 @@ i",
         [TestMethod]
         public async Task TestSerializeJson()
         {
-
             var serializer = new SettingsSerializer();
 
             var tmpDir = new DirectoryInfo("Tmp");
@@ -107,7 +106,7 @@ i",
         {
             var serializer = new SettingsSerializer();
 
-            serializer.SaveZipAsync(_settings, @"Tmp.zip");
+            await serializer.SaveZipAsync(_settings, @"Tmp.zip");
 
             var tmpDir = new DirectoryInfo("Tmp");
             if (tmpDir.Exists)

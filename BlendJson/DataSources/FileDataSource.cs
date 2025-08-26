@@ -20,6 +20,35 @@ namespace BlendJson.DataSources
         public async Task<(JToken, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context,
             CancellationToken token)
         {
+
+            var (bestSearchPath, newDataSource) = GetActualPath(lastDataSource, mode, context, token);
+
+            newDataSource.WorkDir = System.IO.Path.GetDirectoryName(bestSearchPath);
+
+            var fsProvider = context.FsProvider;
+
+            switch (mode)
+            {
+                case LoadMode.Json:
+                    return (JToken.Parse(await fsProvider.LoadTextFileAsync(bestSearchPath, newDataSource.Encoding, token)), newDataSource);
+                case LoadMode.Text:
+                    return (new JValue(await fsProvider.LoadTextFileAsync(bestSearchPath, newDataSource.Encoding, token)), newDataSource);
+                case LoadMode.Bin:
+                    return (JToken.FromObject(await fsProvider.LoadBinFileAsync(bestSearchPath, token)), newDataSource);
+                case LoadMode.LargeBin:
+                    return (JToken.FromObject(await fsProvider.LoadLargeBinFileAsync(bestSearchPath, token)), newDataSource);
+                case LoadMode.Lines:
+                    var lines = (await fsProvider.LoadTextFileAsync(bestSearchPath, newDataSource.Encoding, token))
+                        .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(q => (object)q.Trim('\r')).ToArray();
+                    return (new JArray(lines), newDataSource);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public (string Path, FileDataSource NewDataSource) GetActualPath(IDataSource lastDataSource, LoadMode mode, ParseContext context, CancellationToken token)
+        {
             var newDataSource = new FileDataSource()
             {
                 Encoding = Encoding,
@@ -63,29 +92,11 @@ namespace BlendJson.DataSources
                     break;
                 }
             }
+
             if (bestSearchPath == null)
                 throw new FileNotFoundException($"File not found: {Path}");
 
-            newDataSource.WorkDir = System.IO.Path.GetDirectoryName(bestSearchPath);
-
-            switch (mode)
-            {
-                case LoadMode.Json:
-                    return (JToken.Parse(await fsProvider.LoadTextFileAsync(bestSearchPath, newDataSource.Encoding, token)), newDataSource);
-                case LoadMode.Text:
-                    return (new JValue(await fsProvider.LoadTextFileAsync(bestSearchPath, newDataSource.Encoding, token)), newDataSource);
-                case LoadMode.Bin:
-                    return (JToken.FromObject(await fsProvider.LoadBinFileAsync(bestSearchPath, token)), newDataSource);
-                case LoadMode.LargeBin:
-                    return (JToken.FromObject(await fsProvider.LoadLargeBinFileAsync(bestSearchPath, token)), newDataSource);
-                case LoadMode.Lines:
-                    var lines = (await fsProvider.LoadTextFileAsync(bestSearchPath, newDataSource.Encoding, token))
-                        .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(q => (object)q.Trim('\r')).ToArray();
-                    return (new JArray(lines), newDataSource);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return (bestSearchPath, newDataSource);
         }
     }
 }

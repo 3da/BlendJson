@@ -2,9 +2,10 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using BlendJson.DataSources;
 using Newtonsoft.Json.Linq;
 
-namespace BlendJson.DataSources
+namespace BlendJson.ExternalDataSources
 {
     public class HttpDataSource : IDataSource
     {
