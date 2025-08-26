@@ -17,11 +17,17 @@ jobs:
         dotnet-version: | 
           8.x
           9.x
+    - name: Set Version Variable
+      if: ${{ github.ref_type == 'tag' }}
+      env:
+        TAG: ${{ github.ref_name }}
+      run: echo "VERSION=${TAG#v}" >> $GITHUB_ENV
     - name: Build
-      run: dotnet build -c Release
+      run: dotnet build -c Release -p:Version=$VERSION
     - name: Test
       run: dotnet test -c Release --no-build
     - name: Pack nugets
-      run: dotnet pack -c Release --no-build --output nupack
+      run: dotnet pack -c Release --no-build --output ./nupack -p:PackageVersion=$VERSION
     - name: Push to NuGet
-      run: dotnet nuget push "nupack\*.nupkg" --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
+      if: github.ref_type == 'tag' && startsWith(github.ref, 'refs/tags/v')
+      run: dotnet nuget push "nupack/*.nupkg" --api-key ${{secrets.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json
