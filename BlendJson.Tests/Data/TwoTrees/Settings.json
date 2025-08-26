@@ -1,0 +1,13 @@
+﻿{
+  "@MergeWith": "BaseSettings",
+  "B": {
+    "C": [ 2, 3, 4 ],
+    "D": 5,
+    "E": {
+      "F": null,
+      "@concat-G": [ 7, 8, 9 ],
+      "@union-Y": [ 3, 4, 5 ],
+      "@except-H": [ "X" ]
+    }
+  }
+}

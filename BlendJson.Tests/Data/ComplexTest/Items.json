@@ -1,0 +1,16 @@
+﻿[
+  {
+    "Name": "Item1",
+    "Value": "Value1"
+  },
+  {
+    "@MergeArrayWith": "AnotherDirectory\\TwoItems.json"
+  },
+  {
+    "Name": "Item2",
+    "Value": "Value2"
+  },
+  {
+    "@LoadFrom": "AnotherDirectory\\SomeItem.json"
+  }
+]

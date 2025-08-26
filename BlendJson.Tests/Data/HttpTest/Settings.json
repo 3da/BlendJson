@@ -1,0 +1,12 @@
+﻿{
+  "Hello": {
+    "@MergeWith": {
+      "DataSource": {
+        "@Name": "HttpDataSource",
+        "Uri": "https://jsonplaceholder.typicode.com/todos/32"
+      }
+    },
+    "City": "Almaty",
+    "Country": "Kazakhstan"
+  }
+}

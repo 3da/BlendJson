@@ -1,0 +1,40 @@
+﻿{
+  "B": {
+    "C": [
+      2,
+      {
+        "@LoadFrom": {
+          "DataSource": {
+            "@Name": "MongoDataSource",
+            "DataBase": "JsonSettings_MongoDbTests",
+            "Collection": "Test",
+            "Filter": { "F": 2 }
+          }
+        }
+      },
+      3,
+      4,
+      {
+        "@LoadFrom": {
+          "DataSource": {
+            "@Name": "MongoDataSource",
+            "DataBase": "JsonSettings_MongoDbTests",
+            "Collection": "Test",
+            "Filter": { "F": 1 }
+          }
+        }
+      }
+    ],
+    "All": {
+      "@LoadFrom": {
+        "DataSource": {
+          "@Name": "MongoDataSource",
+          "DataBase": "JsonSettings_MongoDbTests",
+          "Collection": "Test",
+          "IsArray": true
+        }
+      }
+    }
+  }
+
+}
