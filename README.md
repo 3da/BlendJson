@@ -1,10 +1,5 @@
 # BlendJson
-This library allows describe flexible JSON configurations.
-It allows to move some sections of JSON to external files.
-It will produce single JSON after loading which can be mapped to specific C# class.
-
-This library is based on Newtonsoft Json.NET.
-Configuration format is fully compatible with normal JSON.
+[English description](Readme_en.md)
 
 Эта библиотека позволяет более гибко описывать конфигурацию приложения в формате JSON.
 Бибилиотека позволяет вынести некоторые секции JSON в отдельные файлы.
@@ -13,14 +8,11 @@ Configuration format is fully compatible with normal JSON.
 Эта библотека основана на Newtonsoft Json.NET.
 Формат конфигурационных файлов полностью совместим с обычным форматом JSON.
 
-## Example (Пример) 1.
+## Пример 1.
 Данный пример демонстрирует JSON настройки, разделённые на несколько файлов и результат их загрузки.
 Это достигается путём использования соответствующих директив, названия которых начинаются символом @.
 
-This example demonstrates JSON settings, separated to multiple files and the result of loading.
-It achieved by using special directives, whose names starts with symbol @. 
-
-### Content (Содержимое) Settings.json
+### Содержимое Settings.json
 ```json
 {
   "NormalProperty": "HelloWorld",
@@ -40,12 +32,12 @@ It achieved by using special directives, whose names starts with symbol @.
 }
 ```
 
-### Content (Содержимое) Colors.json
+### Содержимое Colors.json
 ```json
 [ "Red", "Green", "Blue" ]
 ```
 
-### Content (Содержимое) Websites.json
+### Содержимое Websites.json
 ```json
 [
   "microsoft.com",
@@ -53,7 +45,7 @@ It achieved by using special directives, whose names starts with symbol @.
 ]
 ```
 
-### Content (Содержимое) RemoteCredentials.json
+### Содержимое RemoteCredentials.json
 ```json
 {
   "UserName": "adam",
@@ -61,7 +53,7 @@ It achieved by using special directives, whose names starts with symbol @.
 }
 ```
 
-### Result of loading (Результат загрузки) Settings.json
+### Результат загрузки Settings.json
 ```json
 {
   "NormalProperty": "HelloWorld",
@@ -79,8 +71,6 @@ It achieved by using special directives, whose names starts with symbol @.
 }
 ```
 
-
-You can find more examples in unit tests:
 Вы можете найти больше примеров в модульных тестах:
 https://github.com/3da/BlendJson/tree/master/BlendJson.Tests
 
