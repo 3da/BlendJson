@@ -112,7 +112,7 @@ namespace BlendJson.Tests
         }
 
         [TestMethod]
-        public void TestMultipleIntancesZip()
+        public async Task TestMultipleInstancesZip()
         {
 
             var tmpDir = new DirectoryInfo("Tmp");
@@ -124,7 +124,7 @@ namespace BlendJson.Tests
 
             var serializer = new SettingsSerializer();
 
-            serializer.SaveZipAsync(_settings, @"Tmp.zip");
+            await serializer.SaveZipAsync(_settings, @"Tmp.zip");
 
             ZipFile.ExtractToDirectory("Tmp.zip", "Tmp");
 

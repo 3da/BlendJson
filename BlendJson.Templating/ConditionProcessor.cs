@@ -28,7 +28,6 @@ namespace BlendJson.Templating
 
             try
             {
-
                 var globals = GlobalsProcessor.Process(_globals, context);
 
                 var result = await CSharpScript.EvaluateAsync<bool>(options.If, globals: globals,
@@ -38,7 +37,7 @@ namespace BlendJson.Templating
             }
             catch (Exception e)
             {
-                throw new SettingsException($"Error processing: {options.If}")
+                throw new SettingsException($"Error processing: {options.If}", e)
                 {
                     JToken = jOptions
                 };

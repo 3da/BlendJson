@@ -1,4 +1,4 @@
-# JsonSettingsManager
+# BlendJson
 This library allows describe flexible JSON configurations.
 It allows to move some sections of JSON to external files.
 It will produce single JSON after loading which can be mapped to specific C# class.
@@ -82,7 +82,7 @@ It achieved by using special directives, whose names starts with symbol @.
 
 You can find more examples in unit tests:
 Вы можете найти больше примеров в модульных тестах:
-https://github.com/3da/JsonSettingsManager/tree/master/JsonSettingsManager.Tests
+https://github.com/3da/BlendJson/tree/master/BlendJson.Tests
 
 
 

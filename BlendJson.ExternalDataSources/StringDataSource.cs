@@ -13,6 +13,7 @@ namespace BlendJson.ExternalDataSources
         public async Task<(JToken, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context,
             CancellationToken token)
         {
+            await Task.Yield();
             switch (mode)
             {
                 case LoadMode.Json:

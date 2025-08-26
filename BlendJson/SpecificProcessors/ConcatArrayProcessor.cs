@@ -11,6 +11,7 @@ namespace BlendJson.SpecificProcessors
         public async Task<JToken> DoAsync(ParseContext context, JToken jOptions, JObject obj, string keyWord,
             CancellationToken token = default)
         {
+            await Task.Yield();
             var propName = keyWord.Substring(KeyWord.Length);
 
             var otherArr = obj[propName] as JArray;
