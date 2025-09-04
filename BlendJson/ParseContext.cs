@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using BlendJson.DataSources;
 using BlendJson.ParseModes;
 using Newtonsoft.Json;
@@ -17,6 +18,7 @@ namespace BlendJson
         public IFsProvider FsProvider { get; set; }
         internal IParseMode ParseMode { get; set; }
         public int Depth { get; internal set; }
+        public Encoding DefaultEncoding { get; set; } = Encoding.UTF8;
 
         public ParseContext Clone()
         {

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BlendJson.ParseModes;
 using Newtonsoft.Json.Linq;
 
 namespace BlendJson.DataSources
@@ -55,14 +56,12 @@ namespace BlendJson.DataSources
                 Path = Path,
                 WorkDir = WorkDir
             };
-            if (lastDataSource is FileDataSource f)
-            {
-                newDataSource.WorkDir = WorkDir ?? f.WorkDir;
-                newDataSource.Encoding = Encoding ?? f.Encoding;
-            }
+
+            newDataSource.WorkDir = WorkDir ?? lastDataSource.WorkDir;
+            newDataSource.Encoding = Encoding ?? lastDataSource.Encoding;
 
             if (newDataSource.Encoding == null)
-                newDataSource.Encoding = Encoding.UTF8;
+                newDataSource.Encoding = context.DefaultEncoding;
 
 
             var searchPaths = new List<string>
@@ -93,7 +92,7 @@ namespace BlendJson.DataSources
                 }
             }
 
-            if (bestSearchPath == null)
+            if (bestSearchPath == null && context.ParseMode is MergeMode)
                 throw new FileNotFoundException($"File not found: {Path}");
 
             return (bestSearchPath, newDataSource);

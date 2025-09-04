@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using BlendJson.DataSources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BlendJson.Tests
@@ -17,7 +18,7 @@ namespace BlendJson.Tests
         }
 
         [TestMethod]
-        public async Task TestGetRefsFromJson()
+        public async Task TestGetRefsFromJsonFile()
         {
             var settingsManager = new SettingsManager();
 
@@ -38,6 +39,33 @@ namespace BlendJson.Tests
                 new JsonReference("Merge1",Path.Combine("Data","ComplexTest","Merge1.json")),
                 new JsonReference("Merge2",Path.Combine("Data","ComplexTest","Merge2.json"))], refs);
 
+        }
+
+        [TestMethod]
+        public async Task TestGetRefsFromJsonString()
+        {
+            var sourcePath = Path.Combine("Data", "Example1", "Settings.json");
+
+            var settingsManager = new SettingsManager();
+            var stringSource = new StringDataSource(await File.ReadAllTextAsync(sourcePath));
+            var (refs, json) = await settingsManager.LoadRefsAsync(stringSource);
+
+            CompareRefs([new JsonReference("Colors", null),
+                new JsonReference("Websites", null),
+                new JsonReference("RemoteCredentials", null)], refs);
+
+            Assert.AreEqual(await File.ReadAllTextAsync(sourcePath), json.ToString());
+
+            var sourceWorkDir = Path.Combine("Data", "Example1");
+
+            stringSource = new StringDataSource(await File.ReadAllTextAsync(sourcePath)) { WorkDir = sourceWorkDir };
+            (refs, json) = await settingsManager.LoadRefsAsync(stringSource);
+
+            CompareRefs([new JsonReference("Colors", Path.Combine("Data","Example1","Colors.json")),
+                new JsonReference("Websites", Path.Combine("Data","Example1","Websites.json")),
+                new JsonReference("RemoteCredentials", Path.Combine("Data","Example1","RemoteCredentials.json"))], refs);
+
+            Assert.AreEqual(await File.ReadAllTextAsync(sourcePath), json.ToString());
         }
     }
 }
