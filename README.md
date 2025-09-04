@@ -1,5 +1,5 @@
 # BlendJson
-[English description](Readme_en.md)
+[English description](README_en.md)
 
 Эта библиотека позволяет более гибко описывать конфигурацию приложения в формате JSON.
 Бибилиотека позволяет вынести некоторые секции JSON в отдельные файлы.
