@@ -1,5 +1,5 @@
 # BlendJson
-[Описание на русском языке](Readme.md)
+[Описание на русском языке](README.md)
 
 This library allows describe flexible JSON configurations.
 It allows to move some sections of JSON to external files.
