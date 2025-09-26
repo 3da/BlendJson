@@ -12,7 +12,7 @@ namespace BlendJson.Serialization
 {
     public class SettingsSerializer
     {
-        private readonly List<Type> _dataSourceTypes = SettingsManager.GetDefaultDataSources();
+        private readonly List<Type> _dataSourceTypes = SettingsLoader.GetDefaultDataSources();
 
         private List<JsonConverter> GetJsonConverters() =>
             new List<JsonConverter>()

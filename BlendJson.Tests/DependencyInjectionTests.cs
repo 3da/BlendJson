@@ -42,7 +42,7 @@ namespace BlendJson.Tests
 
             var provider = services.BuildServiceProvider(new ServiceProviderOptions());
 
-            var manager = new SettingsManager()
+            var manager = new SettingsLoader()
             {
                 ServiceProvider = provider
             };

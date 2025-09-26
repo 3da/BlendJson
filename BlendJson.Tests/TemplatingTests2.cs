@@ -14,7 +14,7 @@ namespace BlendJson.Tests
         {
             var globals = new Gl { };
 
-            var manager = new SettingsManager(new EvalProcessor(globals), new ConditionProcessor(globals));
+            var manager = new SettingsLoader(new EvalProcessor(globals), new ConditionProcessor(globals));
 
             Assert.IsTrue(File.Exists("Data/Templating2/Data.bin"));
 
@@ -27,7 +27,7 @@ namespace BlendJson.Tests
         [TestMethod]
         public async Task TestLoadWithParameters()
         {
-            var manager = new SettingsManager(new EvalProcessor(null), new ConditionProcessor(null));
+            var manager = new SettingsLoader(new EvalProcessor(null), new ConditionProcessor(null));
 
             var settings = await manager.LoadSettingsAsync("Data/LoadWithParams/Settings.json");
 
@@ -46,7 +46,7 @@ namespace BlendJson.Tests
                 ["Var2"] = true
             };
 
-            var manager = new SettingsManager(new EvalProcessor(globals), new ConditionProcessor(globals));
+            var manager = new SettingsLoader(new EvalProcessor(globals), new ConditionProcessor(globals));
 
             var settings = await manager.LoadSettingsAsync("Data/LoadWithParams/External.json");
 
@@ -65,7 +65,7 @@ namespace BlendJson.Tests
                 ["Var2"] = true
             };
 
-            var manager = new SettingsManager(new EvalProcessor(globals), new ConditionProcessor(globals));
+            var manager = new SettingsLoader(new EvalProcessor(globals), new ConditionProcessor(globals));
 
             var settings = await manager.LoadSettingsAsync("Data/LoadWithParams/Settings3.json");
 
@@ -82,7 +82,7 @@ namespace BlendJson.Tests
             {
             };
 
-            var manager = new SettingsManager(new EvalProcessor(globals));
+            var manager = new SettingsLoader(new EvalProcessor(globals));
 
             var settings = await manager.LoadSettingsAsync("Data/LoadWithParams/A4.json");
 

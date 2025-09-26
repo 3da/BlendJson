@@ -37,7 +37,7 @@ namespace BlendJson.Tests
             await serializer.SaveZipAsync(settings, "Large.zip");
 
 
-            var settingsManager = new BlendJson.SettingsManager();
+            var settingsManager = new BlendJson.SettingsLoader();
 
             var result = await settingsManager.LoadSettingsZipAsync<Settings>("Large.zip");
 
@@ -62,7 +62,7 @@ namespace BlendJson.Tests
         {
             var expected = Encoding.UTF8.GetBytes("test1488");
 
-            var manager = new SettingsManager();
+            var manager = new SettingsLoader();
             var settings = await manager.LoadSettingsAsync<Settings2>("Data/LoadModes/Settings2.json");
 
             Assert.IsTrue(expected.SequenceEqual(settings.Binary[0]));

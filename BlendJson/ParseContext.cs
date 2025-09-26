@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using BlendJson.DataSources;
+using BlendJson.FsProviders;
 using BlendJson.ParseModes;
 using Newtonsoft.Json;
 
@@ -11,7 +12,7 @@ namespace BlendJson
     {
         public IDataSource DataSource { get; set; }
         public bool MergeArray { get; set; }
-        public SettingsManager Manager { get; set; }
+        public SettingsLoader Manager { get; set; }
         public JsonSerializer Serializer { get; set; }
         public bool DisableProcessors { get; set; }
         public IDictionary<string, object> Parameters { get; set; }
@@ -19,6 +20,7 @@ namespace BlendJson
         internal IParseMode ParseMode { get; set; }
         public int Depth { get; internal set; }
         public Encoding DefaultEncoding { get; set; } = Encoding.UTF8;
+        public bool CheckFileExist { get; set; }
 
         public ParseContext Clone()
         {
@@ -32,7 +34,8 @@ namespace BlendJson
                 Parameters = Parameters != null ? new Dictionary<string, object>(Parameters) : null,
                 FsProvider = FsProvider,
                 ParseMode = ParseMode,
-                Depth = Depth + 1
+                Depth = Depth + 1,
+                CheckFileExist = CheckFileExist
             };
         }
 

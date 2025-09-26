@@ -10,7 +10,7 @@ namespace BlendJson.Tests
     {
         private async Task TestAsync(string expectedPath, string actualPath)
         {
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsLoader();
 
             var settings = await settingsManager.LoadSettingsAsync(actualPath);
 

@@ -11,10 +11,10 @@ namespace BlendJson.Tests
         [TestMethod]
         public async Task Test()
         {
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsLoader();
 
-            TestFsProvider fsProvider;
-            settingsManager.FsProvider = fsProvider = new TestFsProvider();
+            TestFsProvider fsProvider = new TestFsProvider();
+            settingsManager.FsProvider = fsProvider;
 
             var settings = await settingsManager.LoadSettingsAsync("Data/ComplexTest/Settings.json");
 

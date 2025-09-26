@@ -11,7 +11,7 @@ namespace BlendJson.Tests
         [TestMethod]
         public async Task Test()
         {
-            var manager = new SettingsManager();
+            var manager = new SettingsLoader();
             var settings = await manager.LoadSettingsAsync("Data/LoadModes/Settings.json");
 
             Assert.AreEqual(JToken.Parse(await File.ReadAllTextAsync("Data/LoadModes/Expected.json")).ToString(), settings.ToString());

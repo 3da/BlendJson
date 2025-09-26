@@ -27,7 +27,7 @@ namespace BlendJson.Tests
         [TestMethod]
         public void Test()
         {
-            var manager = new SettingsManager();
+            var manager = new SettingsLoader();
 
             var s = manager.LoadSettings<S>(JToken.Parse("{\"Field\": null, \"Field2\": {\"@Name\": \"C\"}}"));
 

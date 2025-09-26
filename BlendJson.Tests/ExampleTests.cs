@@ -9,7 +9,7 @@ namespace BlendJson.Tests
         [TestMethod]
         public async Task TestExample1()
         {
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsLoader();
 
             var settings = await settingsManager.LoadSettingsAsync("Data/Example1/Settings.json");
             var expectedSettings = await settingsManager.LoadSettingsAsync("Data/Example1/ExpectedSettings.json");

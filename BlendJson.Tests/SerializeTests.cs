@@ -93,7 +93,7 @@ i",
             CompareLines("Data/Serialization/Text.txt", "Tmp/Text.txt");
             CompareLines("Data/Serialization/Lines.txt", "Tmp/Lines.txt");
 
-            var manager = new SettingsManager();
+            var manager = new SettingsLoader();
 
             var jsonSettings = await manager.LoadSettingsAsync("Tmp/settings");
             var typedSettings = jsonSettings.ToObject<Settings>();
@@ -131,7 +131,7 @@ i",
             CompareLines("Data/Serialization/Text.txt", "Tmp/Text.txt");
             CompareLines("Data/Serialization/Lines.txt", "Tmp/Lines.txt");
 
-            var manager = new SettingsManager();
+            var manager = new SettingsLoader();
 
             var jsonSettings = await manager.LoadSettingsAsync("Tmp.zip");
             var typedSettings = jsonSettings.ToObject<Settings>();

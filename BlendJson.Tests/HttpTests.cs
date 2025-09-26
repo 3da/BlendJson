@@ -13,7 +13,7 @@ namespace BlendJson.Tests
 		[TestMethod]
 		public async Task Test()
 		{
-			var settingsManager = new SettingsManager();
+			var settingsManager = new SettingsLoader();
 
             settingsManager.AddDataSource<HttpDataSource>();
 

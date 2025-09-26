@@ -22,7 +22,7 @@ namespace BlendJson.DataSources
             CancellationToken token)
         {
 
-            var (bestSearchPath, newDataSource) = GetActualPath(lastDataSource, mode, context, token);
+            var (bestSearchPath, newDataSource) = await GetActualPathAsync(lastDataSource, mode, context, token);
 
             newDataSource.WorkDir = System.IO.Path.GetDirectoryName(bestSearchPath);
 
@@ -48,7 +48,7 @@ namespace BlendJson.DataSources
             }
         }
 
-        public (string Path, FileDataSource NewDataSource) GetActualPath(IDataSource lastDataSource, LoadMode mode, ParseContext context, CancellationToken token)
+        public async Task<(string Path, FileDataSource NewDataSource)> GetActualPathAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context, CancellationToken token)
         {
             var newDataSource = new FileDataSource()
             {
@@ -63,34 +63,27 @@ namespace BlendJson.DataSources
             if (newDataSource.Encoding == null)
                 newDataSource.Encoding = context.DefaultEncoding;
 
+            var fsProvider = context.FsProvider;
 
-            var searchPaths = new List<string>
-            {
-                newDataSource.Path
-            };
+            var searchPaths = fsProvider.GetSearchPaths(newDataSource.Path, newDataSource.WorkDir, mode);
 
-            if (mode == LoadMode.Json)
-                searchPaths.Add(newDataSource.Path + ".json");
 
-            if (newDataSource.WorkDir != null)
-            {
-                searchPaths.Insert(0, System.IO.Path.Combine(newDataSource.WorkDir, Path));
-                if (mode == LoadMode.Json)
-                    searchPaths.Insert(1, System.IO.Path.Combine(newDataSource.WorkDir, Path + ".json"));
-            }
 
             string bestSearchPath = null;
 
-            var fsProvider = context.FsProvider;
-
-            foreach (var searchPath in searchPaths)
+            if (context.CheckFileExist)
             {
-                if (fsProvider.FileExists(searchPath))
+                foreach (var searchPath in searchPaths)
                 {
-                    bestSearchPath = searchPath;
-                    break;
+                    if (await fsProvider.FileExistsAsync(searchPath))
+                    {
+                        bestSearchPath = searchPath;
+                        break;
+                    }
                 }
             }
+            else
+                bestSearchPath = searchPaths.FirstOrDefault();
 
             if (bestSearchPath == null && context.ParseMode is MergeMode)
                 throw new FileNotFoundException($"File not found: {Path}");

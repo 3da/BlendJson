@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using BlendJson.DataSources;
+using BlendJson.FsProviders;
 using BlendJson.ParseModes;
 using BlendJson.SpecificProcessors;
 using BlendJson.TypeResolving;
@@ -15,7 +15,7 @@ using Newtonsoft.Json.Linq;
 
 namespace BlendJson
 {
-    public class SettingsManager
+    public class SettingsLoader
     {
         private readonly List<ISpecificProcessor> _specialProcessors;
         private readonly List<Type> _dataSourceTypes;
@@ -24,7 +24,7 @@ namespace BlendJson
 
         public IFsProvider FsProvider { get; set; } = new FsProvider();
 
-        public SettingsManager(params ISpecificProcessor[] processors)
+        public SettingsLoader(params ISpecificProcessor[] processors)
         {
             _specialProcessors =
             [
@@ -90,13 +90,14 @@ namespace BlendJson
                     Parameters = context.Parameters,
                     FsProvider = context.FsProvider,
                     ParseMode = context.ParseMode,
-                    Depth = context.Depth + 1
+                    Depth = context.Depth + 1,
+                    CheckFileExist = context.CheckFileExist
                 }, token);
             }
 
             if (context.ParseMode is GetRefsMode getRefsMode && dataSource is FileDataSource fileDataSource)
             {
-                var (path, _) = fileDataSource.GetActualPath(context.DataSource, mode, context, token);
+                var (path, _) = await fileDataSource.GetActualPathAsync(context.DataSource, mode, context, token);
                 getRefsMode.AddRef(new JsonReference(fileDataSource.Path, path));
             }
 
@@ -111,13 +112,14 @@ namespace BlendJson
                 Manager = this,
                 DataSource = dataSource,
                 FsProvider = FsProvider,
-                ParseMode = new MergeMode()
+                ParseMode = new MergeMode(),
+                CheckFileExist = true
             };
 
             return await LoadSettingsAsync(dataSource, parseContext, LoadMode.Json, token);
         }
 
-        public async Task<(JsonReference[] References, JToken Json)> LoadRefsAsync(IDataSource dataSource, CancellationToken token = default)
+        public async Task<(JsonReference[] References, JToken Json)> LoadRefsAsync(IDataSource dataSource, bool checkFileExist = true, CancellationToken token = default)
         {
             var getRefsMode = new GetRefsMode();
             var parseContext = new ParseContext()
@@ -125,7 +127,8 @@ namespace BlendJson
                 Manager = this,
                 DataSource = dataSource,
                 FsProvider = FsProvider,
-                ParseMode = getRefsMode
+                ParseMode = getRefsMode,
+                CheckFileExist = checkFileExist
             };
 
             var jToken = await LoadSettingsAsync(dataSource, parseContext, LoadMode.Json, token);
@@ -157,9 +160,9 @@ namespace BlendJson
             return await LoadSettingsAsync(new FileDataSource() { Path = path, WorkDir = workDir }, token);
         }
 
-        public async Task<(JsonReference[] References, JToken Json)> LoadRefsAsync(string path, string workDir = null, CancellationToken token = default)
+        public async Task<(JsonReference[] References, JToken Json)> LoadRefsAsync(string path, bool checkFileExist = true, string workDir = null, CancellationToken token = default)
         {
-            return await LoadRefsAsync(new FileDataSource() { Path = path, WorkDir = workDir }, token);
+            return await LoadRefsAsync(new FileDataSource() { Path = path, WorkDir = workDir }, checkFileExist, token);
         }
 
         public async Task<T> LoadSettingsJsonAsync<T>(string path, string workDir = null, CancellationToken token = default)

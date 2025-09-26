@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 using BlendJson.DataSources;
+using BlendJson.FsProviders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BlendJson.Tests
@@ -20,7 +21,7 @@ namespace BlendJson.Tests
         [TestMethod]
         public async Task TestGetRefsFromJsonFile()
         {
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsLoader();
 
             var (refs, json) = await settingsManager.LoadRefsAsync("Data/Example1/Settings.json");
 
@@ -46,7 +47,7 @@ namespace BlendJson.Tests
         {
             var sourcePath = Path.Combine("Data", "Example1", "Settings.json");
 
-            var settingsManager = new SettingsManager();
+            var settingsManager = new SettingsLoader();
             var stringSource = new StringDataSource(await File.ReadAllTextAsync(sourcePath));
             var (refs, json) = await settingsManager.LoadRefsAsync(stringSource);
 
@@ -64,6 +65,26 @@ namespace BlendJson.Tests
             CompareRefs([new JsonReference("Colors", Path.Combine("Data","Example1","Colors.json")),
                 new JsonReference("Websites", Path.Combine("Data","Example1","Websites.json")),
                 new JsonReference("RemoteCredentials", Path.Combine("Data","Example1","RemoteCredentials.json"))], refs);
+
+            Assert.AreEqual(await File.ReadAllTextAsync(sourcePath), json.ToString());
+        }
+
+        [TestMethod]
+        public async Task TestGetRefsForNonExistentFiles()
+        {
+            var sourcePath = Path.Combine("Data", "Example1", "Settings.json");
+
+            var settingsManager = new SettingsLoader
+            {
+                FsProvider = NullFsProvider.Instance
+            };
+
+            var stringSource = new StringDataSource(await File.ReadAllTextAsync(sourcePath)) { WorkDir = Path.Combine("Some", "FakeDir") };
+            var (refs, json) = await settingsManager.LoadRefsAsync(stringSource, false);
+
+            CompareRefs([new JsonReference("Colors", Path.Combine("Some","FakeDir","Colors.json")),
+                new JsonReference("Websites", Path.Combine("Some","FakeDir","Websites.json")),
+                new JsonReference("RemoteCredentials", Path.Combine("Some","FakeDir","RemoteCredentials.json"))], refs);
 
             Assert.AreEqual(await File.ReadAllTextAsync(sourcePath), json.ToString());
         }

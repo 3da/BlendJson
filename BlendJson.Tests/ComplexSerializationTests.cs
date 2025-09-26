@@ -56,7 +56,7 @@ namespace BlendJson.Tests
 
             SerializeTests.CompareJsons("Data/SerializationDeep/ExpectedSettings.json", "TmpResult.json");
 
-            var manager = new SettingsManager();
+            var manager = new SettingsLoader();
 
             var loadedData = await manager.LoadSettingsAsync<IUnit>("TmpResult.json");
 
