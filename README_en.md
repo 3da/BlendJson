@@ -1,6 +1,8 @@
 # BlendJson
 [Описание на русском языке](README.md)
 
+![NuGet Version](https://img.shields.io/nuget/v/BlendJson)
+
 This library allows describe flexible JSON configurations.
 It allows to move some sections of JSON to external files.
 It will produce single JSON after loading which can be mapped to specific C# class.
