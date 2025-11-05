@@ -1,7 +1,7 @@
 # BlendJson
 [Описание на русском языке](README.md)
 
-![NuGet Version](https://img.shields.io/nuget/v/BlendJson)
+[![NuGet Version](https://img.shields.io/nuget/v/BlendJson)](https://nuget.org/packages/BlendJson)
 
 This library allows describe flexible JSON configurations.
 It allows to move some sections of JSON to external files.
