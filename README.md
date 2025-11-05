@@ -1,7 +1,7 @@
 # BlendJson
 [English description](README_en.md)
 
-![NuGet Version](https://img.shields.io/nuget/v/BlendJson)
+[![NuGet Version](https://img.shields.io/nuget/v/BlendJson)](https://nuget.org/packages/BlendJson)
 
 Эта библиотека позволяет более гибко описывать конфигурацию приложения в формате JSON.
 Бибилиотека позволяет вынести некоторые секции JSON в отдельные файлы.
