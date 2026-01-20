@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<Authors>3DA</Authors>
 		<PackageLicenseUrl>https://github.com/3da/BlendJson/blob/master/LICENSE</PackageLicenseUrl>
 		<RepositoryUrl>https://github.com/3da/BlendJson</RepositoryUrl>

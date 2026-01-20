@@ -28,10 +28,10 @@ namespace BlendJson.DocumentationLib
             return result;
         }
 
-        private bool ShouldImpl(Type objectType)
+        private ResolveTypeAttribute GetAttribute(Type objectType)
         {
-            return objectType.GetCustomAttribute(typeof(ResolveTypeAttribute), true) != null
-                   || objectType.GetInterfaces().Any(i => i.GetCustomAttribute(typeof(ResolveTypeAttribute)) != null);
+            return objectType.GetCustomAttribute(typeof(ResolveTypeAttribute), true) as ResolveTypeAttribute
+                   ?? objectType.GetInterfaces().Select(i => i.GetCustomAttribute(typeof(ResolveTypeAttribute))).FirstOrDefault(q => q != null) as ResolveTypeAttribute;
         }
 
         private MemberInfo ProcessMember(string name, Type type, Context context)
@@ -150,6 +150,17 @@ namespace BlendJson.DocumentationLib
             };
         }
 
+        private string ProcessClassName(string name, ResolveTypeAttribute attr)
+        {
+            if (attr.TypePrefix != null && !name.StartsWith(attr.TypePrefix))
+                throw new SettingsException($"Type Prefix \"{name}\" doesn't match {nameof(ResolveTypeAttribute)}");
+
+            if (attr.TypePostfix != null && !name.EndsWith(attr.TypePostfix))
+                throw new SettingsException($"Type Postfix \"{name}\" doesn't match {nameof(ResolveTypeAttribute)}");
+
+            return name[(attr.TypePrefix?.Length ?? 0)..(name.Length - (attr.TypePostfix?.Length ?? 0))];
+        }
+
 
         private MemberInfo ProcessClass(string name, JsonObjectContract contract, Context context)
         {
@@ -158,7 +169,9 @@ namespace BlendJson.DocumentationLib
 
             IList<MemberInfo> implementations = null;
 
-            if (ShouldImpl(objectType))
+            var attr = GetAttribute(objectType);
+
+            if (attr is not null)
             {
                 var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
@@ -180,7 +193,7 @@ namespace BlendJson.DocumentationLib
                     : allTypes.Where(t => t.IsSubclassOf(objectType))).ToArray();
 
                 implementations = types.Any()
-                    ? types.Select(q => ProcessMember(q.Name, q, context)).ToArray()
+                    ? types.Select(q => ProcessMember(ProcessClassName(q.Name, attr), q, context)).ToArray()
                     : null;
             }
 

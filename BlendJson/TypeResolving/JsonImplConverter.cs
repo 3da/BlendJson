@@ -89,11 +89,7 @@ namespace BlendJson.TypeResolving
             if (!(token is JObject jObject))
                 return null;
 
-            if (types.Length == 1)
-            {
-                type = types[0];
-            }
-            else if (types.Length == 0)
+            if (types.Length == 0)
             {
                 throw new SettingsException($"No classes implement {objectType.Name}");
             }
@@ -110,6 +106,16 @@ namespace BlendJson.TypeResolving
                 classNameProp.Remove();
 
                 var className = classNameProp.Value.Value<string>();
+
+                ResolveTypeAttribute attribute = objectType.GetCustomAttribute(typeof(ResolveTypeAttribute), true) as ResolveTypeAttribute;
+                if (attribute == null)
+                {
+                    attribute = objectType.GetInterfaces().Select(i => i.GetCustomAttribute(typeof(ResolveTypeAttribute)))
+                        .FirstOrDefault(q => q != null) as ResolveTypeAttribute;
+                }
+
+                if (attribute != null)
+                    className = attribute.TypePrefix + className + attribute.TypePostfix;
 
                 type = types.FirstOrDefault(q => q.Name.Equals(className));
 
