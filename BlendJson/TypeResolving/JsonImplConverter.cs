@@ -28,7 +28,12 @@ namespace BlendJson.TypeResolving
         {
             var type = value.GetType();
 
+            ResolveTypeAttribute attribute = type.GetCustomAttribute(typeof(ResolveTypeAttribute), true) as ResolveTypeAttribute;
+
             var typeName = type.Name;
+
+            if (attribute != null)
+                typeName = attribute.TrimClassName(typeName);
 
             var contract = (JsonObjectContract)serializer.ContractResolver.ResolveContract(type);
 

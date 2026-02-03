@@ -150,18 +150,6 @@ namespace BlendJson.DocumentationLib
             };
         }
 
-        private string ProcessClassName(string name, ResolveTypeAttribute attr)
-        {
-            if (attr.TypePrefix != null && !name.StartsWith(attr.TypePrefix))
-                throw new SettingsException($"Type Prefix \"{name}\" doesn't match {nameof(ResolveTypeAttribute)}");
-
-            if (attr.TypePostfix != null && !name.EndsWith(attr.TypePostfix))
-                throw new SettingsException($"Type Postfix \"{name}\" doesn't match {nameof(ResolveTypeAttribute)}");
-
-            return name[(attr.TypePrefix?.Length ?? 0)..(name.Length - (attr.TypePostfix?.Length ?? 0))];
-        }
-
-
         private MemberInfo ProcessClass(string name, JsonObjectContract contract, Context context)
         {
 
@@ -193,7 +181,7 @@ namespace BlendJson.DocumentationLib
                     : allTypes.Where(t => t.IsSubclassOf(objectType))).ToArray();
 
                 implementations = types.Any()
-                    ? types.Select(q => ProcessMember(ProcessClassName(q.Name, attr), q, context)).ToArray()
+                    ? types.Select(q => ProcessMember(attr.TrimClassName(q.Name), q, context)).ToArray()
                     : null;
             }
 
