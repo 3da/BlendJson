@@ -79,6 +79,10 @@ namespace BlendJson.Tests
             Assert.AreEqual(typeof(RichDog), settings.Riches[2].GetType());
 
             Assert.AreEqual(typeof(LongSilkRope), settings.Ropes[0].GetType());
+
+            var serializer = new BlendJson.Serialization.SettingsSerializer();
+            var serialized = serializer.SaveJsonString(settings);
+            Assert.AreEqual(System.IO.File.ReadAllText("Data/TypePrefix/Settings.json"), serialized);
         }
 
     }

@@ -29,6 +29,11 @@ namespace BlendJson.TypeResolving
             var type = value.GetType();
 
             ResolveTypeAttribute attribute = type.GetCustomAttribute(typeof(ResolveTypeAttribute), true) as ResolveTypeAttribute;
+            if (attribute == null)
+            {
+                attribute = type.GetInterfaces().Select(i => i.GetCustomAttribute(typeof(ResolveTypeAttribute)))
+                    .FirstOrDefault(q => q != null) as ResolveTypeAttribute;
+            }
 
             var typeName = type.Name;
 

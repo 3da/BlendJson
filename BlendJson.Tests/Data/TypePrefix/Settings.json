@@ -1,15 +1,29 @@
 ﻿{
   "Things": [
-    { "@Name": "Big" },
-    { "@Name": "Bigger" },
-    { "@Name": "Biggest" }
+    {
+      "@Name": "Big"
+    },
+    {
+      "@Name": "Bigger"
+    },
+    {
+      "@Name": "Biggest"
+    }
   ],
   "Riches": [
-    { "@Name": "Boy" },
-    { "@Name": "Girl" },
-    { "@Name": "Dog" }
+    {
+      "@Name": "Boy"
+    },
+    {
+      "@Name": "Girl"
+    },
+    {
+      "@Name": "Dog"
+    }
   ],
   "Ropes": [
-    { "@Name": "Silk" }
+    {
+      "@Name": "Silk"
+    }
   ]
 }
