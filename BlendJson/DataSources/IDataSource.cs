@@ -9,7 +9,7 @@ namespace BlendJson.DataSources
     {
         Task<(JToken, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context, CancellationToken token = default);
 
-        string WorkDir => null;
-        Encoding Encoding => null;
+        string? WorkDir => null;
+        Encoding? Encoding => null;
     }
 }

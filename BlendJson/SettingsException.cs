@@ -6,7 +6,7 @@ namespace BlendJson
 {
     public class SettingsException : Exception
     {
-        public JToken JToken { get; set; }
+        public JToken? JToken { get; set; }
 
         public SettingsException()
         {
@@ -22,6 +22,8 @@ namespace BlendJson
 
         public override string ToString()
         {
+            if (JToken == null)
+                return base.ToString();
             return JToken.ToString(Formatting.None) + base.ToString();
         }
     }

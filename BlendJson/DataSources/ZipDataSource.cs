@@ -13,11 +13,11 @@ namespace BlendJson.DataSources
     public class ZipDataSource : IDataSource
     {
         [JsonIgnore]
-        public ZipArchive ZipArchive { get; set; }
+        public ZipArchive? ZipArchive { get; set; }
 
-        public string Path { get; set; }
+        public required string Path { get; init; }
 
-        public Encoding Encoding { get; set; }
+        public Encoding? Encoding { get; set; }
 
         public async Task<(JToken, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode,
             ParseContext context, CancellationToken token)
@@ -32,7 +32,7 @@ namespace BlendJson.DataSources
             if (Encoding == null)
                 Encoding = Encoding.UTF8;
 
-            ZipArchiveEntry entry;
+            ZipArchiveEntry? entry;
 
             if (ZipArchive == null)
             {
@@ -44,15 +44,18 @@ namespace BlendJson.DataSources
             else
                 entry = ZipArchive.GetEntry(Path);
 
+            if (entry == null)
+                throw new SettingsException($"Cannot find entry \"{Path}\" in zip archive");
+
             await using (var stream = entry.Open())
             {
-                string text = null;
+                string? text = null;
                 if (mode == LoadMode.Json || mode == LoadMode.Text)
-                    text = await new StreamReader(stream, Encoding).ReadToEndAsync();
+                    text = await new StreamReader(stream, Encoding).ReadToEndAsync(token);
                 switch (mode)
                 {
                     case LoadMode.Json:
-                        return (JToken.Parse(text), this);
+                        return (JToken.Parse(text!), this);
                     case LoadMode.Text:
                         return (new JValue(text), this);
                     case LoadMode.Bin:

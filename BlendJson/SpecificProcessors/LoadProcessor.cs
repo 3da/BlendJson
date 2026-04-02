@@ -12,7 +12,7 @@ namespace BlendJson.SpecificProcessors
         public string KeyWord { get; } = "LoadFrom";
         public bool IsPrefix => false;
 
-        public async Task<JToken> DoAsync(ParseContext context, JToken jOptions, JObject obj, string keyWord,
+        public async Task<JToken?> DoAsync(ParseContext context, JToken jOptions, JObject obj, string keyWord,
             CancellationToken token = default)
         {
             var options = Common.ParseOptions<LoadOptions>(jOptions, context.Serializer).Single();

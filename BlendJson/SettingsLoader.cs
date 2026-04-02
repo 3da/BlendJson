@@ -69,12 +69,18 @@ namespace BlendJson
             }
         }
 
-        internal async Task<JToken> LoadSettingsAsync(IDataSource dataSource, ParseContext context, LoadMode mode, CancellationToken token)
+        internal async Task<JToken?> LoadSettingsAsync(IDataSource dataSource, ParseContext context, LoadMode mode, CancellationToken token)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            if (context.ParseMode is MergeMode || context.Depth == 0)
+            if (context is {Depth: > 0, GetRefsMode: { } getRefsMode} && dataSource is FileDataSource fileDataSource)
+            {
+                var (path, _) = await fileDataSource.GetActualPathAsync(context.DataSource, mode, context, token);
+                getRefsMode.AddRef(new JsonReference(fileDataSource.Path, path));
+            }
+
+            if (context.MergeMode != null || context.Depth == 0)
             {
                 (var jToken, dataSource) = await dataSource.LoadAsync(context.DataSource, mode, context, token);
 
@@ -89,20 +95,14 @@ namespace BlendJson
                     }),
                     Parameters = context.Parameters,
                     FsProvider = context.FsProvider,
-                    ParseMode = context.ParseMode,
+                    GetRefsMode = context.GetRefsMode,
+                    MergeMode = context.MergeMode,
                     Depth = context.Depth + 1,
                     CheckFileExist = context.CheckFileExist
                 }, token);
             }
 
-            if (context.ParseMode is GetRefsMode getRefsMode && dataSource is FileDataSource fileDataSource)
-            {
-                var (path, _) = await fileDataSource.GetActualPathAsync(context.DataSource, mode, context, token);
-                getRefsMode.AddRef(new JsonReference(fileDataSource.Path, path));
-            }
-
             return null;
-
         }
 
         public async Task<JToken> LoadSettingsAsync(IDataSource dataSource, CancellationToken token = default)
@@ -112,11 +112,27 @@ namespace BlendJson
                 Manager = this,
                 DataSource = dataSource,
                 FsProvider = FsProvider,
-                ParseMode = new MergeMode(),
+                MergeMode = new MergeMode(),
                 CheckFileExist = true
             };
 
             return await LoadSettingsAsync(dataSource, parseContext, LoadMode.Json, token);
+        }
+
+        public async Task<(JToken, JsonReference[] References)> LoadSettingsWithRefsAsync(IDataSource dataSource, CancellationToken token = default)
+        {
+            var getRefsMode = new GetRefsMode();
+            var parseContext = new ParseContext()
+            {
+                Manager = this,
+                DataSource = dataSource,
+                FsProvider = FsProvider,
+                MergeMode = new MergeMode(),
+                GetRefsMode = getRefsMode,
+                CheckFileExist = true
+            };
+
+            return (await LoadSettingsAsync(dataSource, parseContext, LoadMode.Json, token), getRefsMode.References);
         }
 
         public async Task<(JsonReference[] References, JToken Json)> LoadRefsAsync(IDataSource dataSource, bool checkFileExist = true, CancellationToken token = default)
@@ -127,7 +143,7 @@ namespace BlendJson
                 Manager = this,
                 DataSource = dataSource,
                 FsProvider = FsProvider,
-                ParseMode = getRefsMode,
+                GetRefsMode = getRefsMode,
                 CheckFileExist = checkFileExist
             };
 
@@ -137,7 +153,7 @@ namespace BlendJson
 
 
 
-        public async Task<JToken> LoadSettingsAsync(string path, string workDir = null, CancellationToken token = default)
+        public async Task<JToken> LoadSettingsAsync(string path, string? workDir = null, CancellationToken token = default)
         {
             var fi = new FileInfo(path);
             if (fi.Extension == ".zip")
@@ -146,7 +162,7 @@ namespace BlendJson
                 return await LoadSettingsJsonAsync(path, workDir, token);
         }
 
-        public async Task<T> LoadSettingsAsync<T>(string path, string workDir = null, CancellationToken token = default)
+        public async Task<T> LoadSettingsAsync<T>(string path, string? workDir = null, CancellationToken token = default)
         {
             var fi = new FileInfo(path);
             if (fi.Extension == ".zip")
@@ -155,24 +171,24 @@ namespace BlendJson
                 return await LoadSettingsJsonAsync<T>(path, workDir, token);
         }
 
-        public async Task<JToken> LoadSettingsJsonAsync(string path, string workDir = null, CancellationToken token = default)
+        public async Task<JToken> LoadSettingsJsonAsync(string path, string? workDir = null, CancellationToken token = default)
         {
             return await LoadSettingsAsync(new FileDataSource() { Path = path, WorkDir = workDir }, token);
         }
 
-        public async Task<(JsonReference[] References, JToken Json)> LoadRefsAsync(string path, bool checkFileExist = true, string workDir = null, CancellationToken token = default)
+        public async Task<(JsonReference[] References, JToken Json)> LoadRefsAsync(string path, bool checkFileExist = true, string? workDir = null, CancellationToken token = default)
         {
             return await LoadRefsAsync(new FileDataSource() { Path = path, WorkDir = workDir }, checkFileExist, token);
         }
 
-        public async Task<T> LoadSettingsJsonAsync<T>(string path, string workDir = null, CancellationToken token = default)
+        public async Task<T?> LoadSettingsJsonAsync<T>(string path, string workDir = null, CancellationToken token = default)
         {
             var jToken = await LoadSettingsJsonAsync(path, workDir, token);
 
             return LoadSettings<T>(jToken);
         }
 
-        public T LoadSettings<T>(JToken token)
+        public T? LoadSettings<T>(JToken token)
         {
             return token.ToObject<T>(JsonSerializer.Create(new JsonSerializerSettings()
             {
@@ -227,7 +243,7 @@ namespace BlendJson
                 if (p == null)
                     continue;
 
-                if (context.MergeArray && context.ParseMode is MergeMode)
+                if (context.MergeArray && context.MergeMode != null)
                 {
                     foreach (var child in p.Children())
                     {
@@ -256,7 +272,7 @@ namespace BlendJson
                 })
                 .Where(q => q.Processor != null).ToList();
 
-            if (context.ParseMode is MergeMode)
+            if (context.MergeMode != null)
             {
                 foreach (var specialProperty in specialProperties.Select(q => q.Token))
                 {
@@ -291,7 +307,7 @@ namespace BlendJson
                 }
             }
 
-            if (context.ParseMode is GetRefsMode)
+            if (context.MergeMode == null)
             {
                 result = jObject;
             }

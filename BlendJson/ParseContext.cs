@@ -10,14 +10,15 @@ namespace BlendJson
 {
     public class ParseContext : ICloneable
     {
-        public IDataSource DataSource { get; set; }
+        public required IDataSource DataSource { get; init; }
         public bool MergeArray { get; set; }
-        public SettingsLoader Manager { get; set; }
-        public JsonSerializer Serializer { get; set; }
+        public required SettingsLoader Manager { get; init; }
+        public JsonSerializer Serializer { get; init; }
         public bool DisableProcessors { get; set; }
-        public IDictionary<string, object> Parameters { get; set; }
-        public IFsProvider FsProvider { get; set; }
-        internal IParseMode ParseMode { get; set; }
+        public IDictionary<string, object>? Parameters { get; set; }
+        public required IFsProvider FsProvider { get; init; }
+        internal GetRefsMode? GetRefsMode { get; init; }
+        internal MergeMode? MergeMode { get; init; }
         public int Depth { get; internal set; }
         public Encoding DefaultEncoding { get; set; } = Encoding.UTF8;
         public bool CheckFileExist { get; set; }
@@ -33,7 +34,8 @@ namespace BlendJson
                 DisableProcessors = DisableProcessors,
                 Parameters = Parameters != null ? new Dictionary<string, object>(Parameters) : null,
                 FsProvider = FsProvider,
-                ParseMode = ParseMode,
+                MergeMode = MergeMode,
+                GetRefsMode = GetRefsMode,
                 Depth = Depth + 1,
                 CheckFileExist = CheckFileExist
             };

@@ -11,21 +11,26 @@ namespace BlendJson.TypeResolving
 {
     public class JsonImplConverter : JsonConverter
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceProvider? _serviceProvider;
 
-        public JsonImplConverter(IServiceProvider serviceProvider = null)
+        public JsonImplConverter(IServiceProvider? serviceProvider = null)
         {
             _serviceProvider = serviceProvider;
         }
 
-        public Type Interface { get; init; }
-        public Type[] Implementations { get; init; }
+        public Type? Interface { get; init; }
+        public Type[]? Implementations { get; init; }
 
         public override bool CanRead => true;
         public override bool CanWrite => true;
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
+            if (value == null)
+            {
+                serializer.Serialize(writer, null);
+                return;
+            }
             var type = value.GetType();
 
             ResolveTypeAttribute attribute = type.GetCustomAttribute(typeof(ResolveTypeAttribute), true) as ResolveTypeAttribute;
@@ -88,7 +93,7 @@ namespace BlendJson.TypeResolving
             }).ToArray();
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var types = LoadPossibleImplementations(objectType);
 
@@ -133,7 +138,7 @@ namespace BlendJson.TypeResolving
                     throw new SettingsException($"Cannot find implementation '{className}' of '{objectType.Name}'");
             }
 
-            object result = null;
+            object? result = null;
             if (_serviceProvider != null)
                 result = ActivatorUtilities.CreateInstance(_serviceProvider, type);
 
@@ -161,7 +166,7 @@ namespace BlendJson.TypeResolving
         {
             if (Interface != null)
             {
-                return objectType == Interface || Implementations.Contains(objectType);
+                return objectType == Interface || Implementations!.Contains(objectType);
             }
 
             return objectType.GetCustomAttribute(typeof(ResolveTypeAttribute), true) != null

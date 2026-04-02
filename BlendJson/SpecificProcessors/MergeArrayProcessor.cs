@@ -43,7 +43,7 @@ namespace BlendJson.SpecificProcessors
 
             var otherArray = otherToken as JArray;
 
-            if (otherArray == null && context.ParseMode is MergeMode)
+            if (otherArray == null && context.MergeMode != null)
                 throw new SettingsException($"Merge path {options.DataSource} must be JArray");
 
 

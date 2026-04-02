@@ -9,8 +9,8 @@ namespace BlendJson.DataSources
 {
     public class StringDataSource(string text) : IDataSource
     {
-        public string WorkDir { get; init; }
-        public Encoding Encoding { get; init; }
+        public string? WorkDir { get; init; }
+        public Encoding? Encoding { get; init; }
 
         public async Task<(JToken, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context,
             CancellationToken token)

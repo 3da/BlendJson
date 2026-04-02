@@ -12,17 +12,17 @@ namespace BlendJson.DataSources
 {
     public class FileDataSource : IDataSource
     {
-        public string Path { get; set; }
+        public required string Path { get; init; }
 
-        public string WorkDir { get; set; }
+        public string? WorkDir { get; set; }
 
-        public Encoding Encoding { get; set; }
+        public Encoding? Encoding { get; set; }
 
         public async Task<(JToken, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context,
             CancellationToken token)
         {
-
             var (bestSearchPath, newDataSource) = await GetActualPathAsync(lastDataSource, mode, context, token);
+
 
             newDataSource.WorkDir = System.IO.Path.GetDirectoryName(bestSearchPath);
 
@@ -31,15 +31,15 @@ namespace BlendJson.DataSources
             switch (mode)
             {
                 case LoadMode.Json:
-                    return (JToken.Parse(await fsProvider.LoadTextFileAsync(bestSearchPath, newDataSource.Encoding, token)), newDataSource);
+                    return (JToken.Parse(await fsProvider.LoadTextFileAsync(bestSearchPath!, newDataSource.Encoding!, token)), newDataSource);
                 case LoadMode.Text:
-                    return (new JValue(await fsProvider.LoadTextFileAsync(bestSearchPath, newDataSource.Encoding, token)), newDataSource);
+                    return (new JValue(await fsProvider.LoadTextFileAsync(bestSearchPath!, newDataSource.Encoding!, token)), newDataSource);
                 case LoadMode.Bin:
-                    return (JToken.FromObject(await fsProvider.LoadBinFileAsync(bestSearchPath, token)), newDataSource);
+                    return (JToken.FromObject(await fsProvider.LoadBinFileAsync(bestSearchPath!, token)), newDataSource);
                 case LoadMode.LargeBin:
-                    return (JToken.FromObject(await fsProvider.LoadLargeBinFileAsync(bestSearchPath, token)), newDataSource);
+                    return (JToken.FromObject(await fsProvider.LoadLargeBinFileAsync(bestSearchPath!, token)), newDataSource);
                 case LoadMode.Lines:
-                    var lines = (await fsProvider.LoadTextFileAsync(bestSearchPath, newDataSource.Encoding, token))
+                    var lines = (await fsProvider.LoadTextFileAsync(bestSearchPath!, newDataSource.Encoding!, token))
                         .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(q => (object)q.Trim('\r')).ToArray();
                     return (new JArray(lines), newDataSource);
@@ -48,7 +48,7 @@ namespace BlendJson.DataSources
             }
         }
 
-        public async Task<(string Path, FileDataSource NewDataSource)> GetActualPathAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context, CancellationToken token)
+        public async Task<(string? Path, FileDataSource NewDataSource)> GetActualPathAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context, CancellationToken token)
         {
             var newDataSource = new FileDataSource()
             {
@@ -69,7 +69,7 @@ namespace BlendJson.DataSources
 
 
 
-            string bestSearchPath = null;
+            string? bestSearchPath = null;
 
             if (context.CheckFileExist)
             {
@@ -85,7 +85,7 @@ namespace BlendJson.DataSources
             else
                 bestSearchPath = searchPaths.FirstOrDefault();
 
-            if (bestSearchPath == null && context.ParseMode is MergeMode)
+            if (bestSearchPath == null && context.MergeMode != null)
                 throw new FileNotFoundException($"File not found: {Path}");
 
             return (bestSearchPath, newDataSource);

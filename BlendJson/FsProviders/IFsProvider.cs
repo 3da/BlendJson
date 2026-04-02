@@ -16,7 +16,7 @@ namespace BlendJson.FsProviders
         Task<byte[]> LoadBinFileAsync(string path, CancellationToken token);
         Task<byte[][]> LoadLargeBinFileAsync(string path, CancellationToken token);
 
-        IEnumerable<string> GetSearchPaths(string path, string workDir, LoadMode mode)
+        IEnumerable<string> GetSearchPaths(string path, string? workDir, LoadMode mode)
         {
             if (workDir == null)
                 return [];

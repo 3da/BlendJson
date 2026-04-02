@@ -54,7 +54,7 @@ namespace BlendJson.SpecificProcessors
 
                 var otherToken = await context.Manager.LoadSettingsAsync(mergePath, context, LoadMode.Json, token);
 
-                if (context.ParseMode is GetRefsMode)
+                if (context.MergeMode == null)
                 {
                     continue;
                 }

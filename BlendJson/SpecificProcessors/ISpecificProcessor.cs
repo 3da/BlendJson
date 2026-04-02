@@ -10,6 +10,6 @@ namespace BlendJson.SpecificProcessors
 
         bool IsPrefix { get; }
 
-        Task<JToken> DoAsync(ParseContext context, JToken jOptions, JObject obj, string keyWord, CancellationToken token = default);
+        Task<JToken?> DoAsync(ParseContext context, JToken jOptions, JObject obj, string keyWord, CancellationToken token = default);
     }
 }

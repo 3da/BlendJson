@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.33516.290
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11520.95 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlendJson", "BlendJson\BlendJson.csproj", "{C8AD5E55-5193-46E5-8E65-814A4ADC103A}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlendJson.Templating", "BlendJson.Templating\BlendJson.Templating.csproj", "{8EC1C1AC-3CFF-4789-B8FA-C2D740CAA0A6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlendJson.ExternalDataSources", "BlendJson.ExternalDataSources\BlendJson.ExternalDataSources.csproj", "{9EFE773B-B721-463B-A4DA-579FE4A1F33A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlendJson.Configuration", "BlendJson.Configuration\BlendJson.Configuration.csproj", "{2FB864B3-3D72-4E00-A12F-71128050BB40}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{9EFE773B-B721-463B-A4DA-579FE4A1F33A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9EFE773B-B721-463B-A4DA-579FE4A1F33A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9EFE773B-B721-463B-A4DA-579FE4A1F33A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FB864B3-3D72-4E00-A12F-71128050BB40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FB864B3-3D72-4E00-A12F-71128050BB40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FB864B3-3D72-4E00-A12F-71128050BB40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FB864B3-3D72-4E00-A12F-71128050BB40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
