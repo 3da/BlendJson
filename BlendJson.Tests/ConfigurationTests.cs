@@ -15,7 +15,7 @@ namespace BlendJson.Tests
         public void TestLoadLocalFile()
         {
             var builder = new ConfigurationBuilder();
-            builder.AddBlendJsonFile("Data\\Example1\\Settings.json");
+            builder.AddBlendJsonFile("Data/Example1/Settings.json");
 
             var config = builder.Build();
 
@@ -31,7 +31,7 @@ namespace BlendJson.Tests
         public void TestLoadOptionalFile()
         {
             var builder = new ConfigurationBuilder();
-            builder.AddBlendJsonFile("Data\\not_exists.json", optional: true);
+            builder.AddBlendJsonFile("Data/not_exists.json", optional: true);
 
             var config = builder.Build();
 
@@ -42,7 +42,7 @@ namespace BlendJson.Tests
         public void TestNotExistFile()
         {
             var builder = new ConfigurationBuilder();
-            builder.AddBlendJsonFile("Data\\not_exists.json", optional: false);
+            builder.AddBlendJsonFile("Data/not_exists.json", optional: false);
 
             Assert.ThrowsExactly<FileNotFoundException>(() => builder.Build());
         }
