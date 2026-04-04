@@ -11,12 +11,17 @@ namespace BlendJson.Configuration
         public bool ReloadOnChange { get; init; }
         public bool Optional { get; init; }
 
+        private TaskCompletionSource? _reloadNeeded;
+        private Task? _reloadLoopTask;
+
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public override void Load()
         {
             try
             {
+                if (ReloadOnChange)
+                    _reloadNeeded = new TaskCompletionSource();
                 Data = LoadAsync().GetAwaiter().GetResult();
             }
             catch (FileNotFoundException)
@@ -34,6 +39,8 @@ namespace BlendJson.Configuration
             {
                 JsonReference[] references;
                 (jToken, references) = await SettingsLoader.LoadSettingsWithRefsAsync(DataSource);
+                if (_reloadLoopTask == null)
+                    _reloadLoopTask = StartReloadAsync();
                 _ = WatchFilesAsync(references.Select(q => q.FullPath).Prepend(fileDataSource.Path).ToArray(), _cancellationTokenSource.Token);
             }
             else
@@ -45,8 +52,34 @@ namespace BlendJson.Configuration
             return JsonConfigurationFileParser.Parse(jObject);
         }
 
+        public async Task StartReloadAsync(CancellationToken token = default)
+        {
+            await Task.Run(async () =>
+            {
+                if (_reloadNeeded == null)
+                    return;
+                while (!token.IsCancellationRequested)
+                {
+                    await _reloadNeeded.Task;
+                    _reloadNeeded = new TaskCompletionSource();
+                    try
+                    {
+                        Data = await LoadAsync();
+                        OnReload();
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        Data = new Dictionary<string, string?>();
+                        OnReload();
+                    }
+                }
+            }, token);
+        }
+
         async Task WatchFilesAsync(string[] paths, CancellationToken token = default)
         {
+            if (_reloadNeeded == null)
+                return;
             foreach (var path in paths)
             {
                 var dir = Path.GetDirectoryName(path);
@@ -56,7 +89,8 @@ namespace BlendJson.Configuration
                                        | NotifyFilters.FileName
                                        | NotifyFilters.Size;
 
-                var taskCompletionSource = new TaskCompletionSource();
+                var taskCompletionSource = _reloadNeeded;
+
                 token.Register(() => taskCompletionSource.SetCanceled(token));
 
                 watcher.Changed += (_, _) => taskCompletionSource.TrySetResult();
@@ -67,16 +101,6 @@ namespace BlendJson.Configuration
                 watcher.EnableRaisingEvents = true;
 
                 await taskCompletionSource.Task;
-                try
-                {
-                    Data = await LoadAsync();
-                    OnReload();
-                }
-                catch (FileNotFoundException)
-                {
-                    Data = new Dictionary<string, string?>();
-                    OnReload();
-                }
             }
         }
 
