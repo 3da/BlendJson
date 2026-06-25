@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Net.Http;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using BlendJson.DataSources;
-using Newtonsoft.Json.Linq;
 
 namespace BlendJson.ExternalDataSources
 {
     public class HttpDataSource : IDataSource
     {
         public string Uri { get; set; }
-        public async Task<(JToken, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context,
+        public async Task<(JsonNode, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context,
             CancellationToken token)
         {
             if (mode != LoadMode.Json)
@@ -19,7 +19,7 @@ namespace BlendJson.ExternalDataSources
             using var client = new HttpClient();
             var str = await client.GetStringAsync(Uri);
 
-            return (JToken.Parse(str), this);
+            return (JsonNode.Parse(str), this);
         }
     }
 }

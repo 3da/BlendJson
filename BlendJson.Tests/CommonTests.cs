@@ -1,7 +1,7 @@
 using System.IO;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 
 namespace BlendJson.Tests
 {
@@ -14,9 +14,9 @@ namespace BlendJson.Tests
 
             var settings = await settingsManager.LoadSettingsAsync(actualPath);
 
-            var expectedSettings = JToken.Parse(await File.ReadAllTextAsync(expectedPath));
+            var expectedSettings = JsonNode.Parse(await File.ReadAllTextAsync(expectedPath));
 
-            Assert.IsTrue(JToken.DeepEquals(expectedSettings, settings));
+            Assert.IsTrue(JsonNode.DeepEquals(expectedSettings, settings));
         }
 
         [TestMethod]

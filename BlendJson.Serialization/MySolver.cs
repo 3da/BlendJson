@@ -1,29 +1,44 @@
-﻿using System.Reflection;
-using BlendJson.Serialization.Attributes;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+﻿using BlendJson.Serialization.Attributes;
+using System;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace BlendJson.Serialization
 {
-    public class MySolver : DefaultContractResolver
+    public class MyResolver : DefaultJsonTypeInfoResolver
     {
         private readonly SerializationContext _context;
 
-        public MySolver(SerializationContext context)
+        public MyResolver(SerializationContext context)
         {
             _context = context;
         }
 
-        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+        public override JsonTypeInfo GetTypeInfo(Type type, JsonSerializerOptions options)
         {
-            var prop = base.CreateProperty(member, memberSerialization);
+            var typeInfo = base.GetTypeInfo(type, options);
 
-            var externalAttr = member.GetCustomAttribute(typeof(ToExternalAttribute)) as ToExternalAttribute;
+            if (typeInfo.Kind == JsonTypeInfoKind.Object)
+            {
+                foreach (var property in typeInfo.Properties)
+                {
+                    var externalAttr = property.AttributeProvider
+                        ?.GetCustomAttributes(typeof(ToExternalAttribute), true)
+                        ?.FirstOrDefault() as ToExternalAttribute;
 
-            if (externalAttr != null)
-                prop.Converter = new ExternalJsonConverter(externalAttr.Path, externalAttr.Mode, _context);
+                    if (externalAttr != null)
+                    {
+                        property.CustomConverter = new ExternalJsonConverter(
+                            externalAttr.Path,
+                            externalAttr.Mode,
+                            _context
+                        );
+                    }
+                }
+            }
 
-            return prop;
+            return typeInfo;
         }
     }
 }

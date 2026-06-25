@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Xml;
 using BlendJson.DataSources;
-using BlendJson.TypeResolving;
-using Newtonsoft.Json;
 
 namespace BlendJson.Serialization
 {
@@ -46,27 +47,27 @@ namespace BlendJson.Serialization
             };
 
 
-            var serializer = JsonSerializer.Create(new JsonSerializerSettings()
+            var serializer = new JsonSerializerOptions()
             {
-                ContractResolver = new MySolver(newContext),
-                NullValueHandling = NullValueHandling.Ignore,
-                Converters = JsonConverters,
-                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-                Formatting = Formatting.Indented
-            });
+                TypeInfoResolver = new MyResolver(newContext),
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = true
+            };
+
+            foreach (var jsonConverter in JsonConverters)
+            {
+                serializer.Converters.Add(jsonConverter);
+            }
 
             switch (mode)
             {
                 case LoadMode.Json:
                     using (var memoryStream = new MemoryStream())
                     {
-                        var streamWriter = new StreamWriter(memoryStream);
-                        serializer.Serialize(streamWriter, value);
-                        await streamWriter.FlushAsync();
+                        await JsonSerializer.SerializeAsync(memoryStream, value, serializer);
                         memoryStream.Seek(0, SeekOrigin.Begin);
                         context.Writer.Write(newPath, memoryStream);
                     }
-
                     break;
                 case LoadMode.Text:
                     using (var stream = new MemoryStream(Encoding.UTF8.GetBytes((string)value)))

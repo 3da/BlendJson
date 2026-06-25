@@ -1,7 +1,8 @@
 ﻿using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace BlendJson.SpecificProcessors
 {
@@ -9,19 +10,20 @@ namespace BlendJson.SpecificProcessors
     {
         public string KeyWord => "union-";
         public bool IsPrefix => true;
-        public async Task<JToken> DoAsync(ParseContext context, JToken jOptions, JObject obj, string keyWord,
+        public async Task<JsonNode> DoAsync(ParseContext context, JsonNode jOptions, JsonObject obj, string keyWord,
             CancellationToken token = default)
         {
             await Task.Yield();
             var propName = keyWord.Substring(KeyWord.Length);
 
-            var otherArr = obj[propName] as JArray;
+            var otherArr = obj[propName] as JsonArray;
 
 
-            var arr = jOptions as JArray;
-
-            if (arr == null)
-                throw new SettingsException();
+            if (jOptions is not JsonArray arr)
+                throw new SettingsException()
+                {
+                    JToken = jOptions
+                };
 
             if (otherArr == null)
             {
@@ -31,8 +33,8 @@ namespace BlendJson.SpecificProcessors
             {
                 foreach (var item in arr)
                 {
-                    if (!otherArr.Children().Any(item2 => JToken.DeepEquals(item2, item)))
-                        otherArr.Add(item);
+                    if (!otherArr.Any(item2 => JsonNode.DeepEquals(item2, item)))
+                        otherArr.Add(item?.DeepClone());
                 }
             }
 

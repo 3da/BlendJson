@@ -1,43 +1,51 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 namespace BlendJson.TypeResolving
 {
-    public class JsonImplConverter : JsonConverter
+    public class JsonImplConverter : JsonConverter<object>
     {
-        private readonly IServiceProvider? _serviceProvider;
-
-        public JsonImplConverter(IServiceProvider? serviceProvider = null)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
         public Type? Interface { get; init; }
         public Type[]? Implementations { get; init; }
 
-        public override bool CanRead => true;
-        public override bool CanWrite => true;
+        private ConcurrentDictionary<object, object> _visitedObjects = new ConcurrentDictionary<object, object>();
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        private JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions()
         {
-            if (value == null)
+            Converters = { new EncodingConverter() },
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+        };
+
+        public override void Write(Utf8JsonWriter writer, object? value, JsonSerializerOptions options)
+        {
+            if (_visitedObjects.TryRemove(value, out _))
             {
-                serializer.Serialize(writer, null);
+                JsonSerializer.Serialize(writer, value, _jsonSerializerOptions);
                 return;
             }
+            _visitedObjects.TryAdd(value, null);
+
+            if (value == null)
+            {
+                writer.WriteNullValue();
+                return;
+            }
+
             var type = value.GetType();
 
-            ResolveTypeAttribute attribute = type.GetCustomAttribute(typeof(ResolveTypeAttribute), true) as ResolveTypeAttribute;
+            var attribute = type.GetCustomAttribute<ResolveTypeAttribute>(true);
             if (attribute == null)
             {
-                attribute = type.GetInterfaces().Select(i => i.GetCustomAttribute(typeof(ResolveTypeAttribute)))
-                    .FirstOrDefault(q => q != null) as ResolveTypeAttribute;
+                attribute = type.GetInterfaces()
+                    .Select(i => i.GetCustomAttribute<ResolveTypeAttribute>(true))
+                    .FirstOrDefault(a => a != null);
             }
 
             var typeName = type.Name;
@@ -45,35 +53,11 @@ namespace BlendJson.TypeResolving
             if (attribute != null)
                 typeName = attribute.TrimClassName(typeName);
 
-            var contract = (JsonObjectContract)serializer.ContractResolver.ResolveContract(type);
-
-            var resultObj = new JObject
+            if (JsonSerializer.SerializeToNode(value, options) is JsonObject resultObject)
             {
-                ["@Name"] = typeName
-            };
-
-
-
-            foreach (var prop in contract.Properties)
-            {
-                var propValue = prop.ValueProvider.GetValue(value);
-                if (propValue != null)
-                {
-                    if (prop.Converter != null)
-                    {
-                        var writer1 = resultObj.CreateWriter();
-                        writer1.WritePropertyName(prop.PropertyName);
-                        prop.Converter.WriteJson(writer1, propValue, serializer);
-                    }
-                    else
-                    {
-                        resultObj[prop.PropertyName] = JToken.FromObject(propValue, serializer);
-                    }
-
-                }
+                resultObject["@Name"] = typeName;
+                resultObject.WriteTo(writer);
             }
-
-            serializer.Serialize(writer, resultObj);
         }
 
         private static IList<Type> GetTypes()
@@ -88,67 +72,63 @@ namespace BlendJson.TypeResolving
                 }
                 catch
                 {
-                    return Enumerable.Empty<Type>();
+                    return [];
                 }
             }).ToArray();
         }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var types = LoadPossibleImplementations(objectType);
-
-            Type type;
-
-            var token = JToken.Load(reader);
-
-            if (!(token is JObject jObject))
-                return null;
+            var types = LoadPossibleImplementations(typeToConvert);
 
             if (types.Length == 0)
             {
-                throw new SettingsException($"No classes implement {objectType.Name}");
+                throw new SettingsException($"No classes implement {typeToConvert.Name}");
             }
-            else
+
+            var rootElement = JsonNode.Parse(ref reader);
+
+            if (rootElement is not JsonObject jsonObject)
+                return null;
+
+            if (!jsonObject.TryGetPropertyValue("@Name", out var classNameElement))
             {
-                var classNameProp = jObject.Property("@Name");
-
-                if (classNameProp == null)
-                    throw new SettingsException($"Cannot find property @Name")
-                    {
-                        JToken = jObject
-                    };
-
-                classNameProp.Remove();
-
-                var className = classNameProp.Value.Value<string>();
-
-                ResolveTypeAttribute attribute = objectType.GetCustomAttribute(typeof(ResolveTypeAttribute), true) as ResolveTypeAttribute;
-                if (attribute == null)
+                throw new SettingsException($"Cannot find property @Name")
                 {
-                    attribute = objectType.GetInterfaces().Select(i => i.GetCustomAttribute(typeof(ResolveTypeAttribute)))
-                        .FirstOrDefault(q => q != null) as ResolveTypeAttribute;
-                }
-
-                if (attribute != null)
-                    className = attribute.TypePrefix + className + attribute.TypePostfix;
-
-                type = types.FirstOrDefault(q => q.Name.Equals(className));
-
-                if (type == null)
-                    throw new SettingsException($"Cannot find implementation '{className}' of '{objectType.Name}'");
+                    JToken = jsonObject
+                };
             }
+
+            jsonObject.Remove("@Name");
+
+            var className = classNameElement.GetValue<string>();
+
+            var attribute = typeToConvert.GetCustomAttribute<ResolveTypeAttribute>(true);
+            if (attribute == null)
+            {
+                attribute = typeToConvert.GetInterfaces()
+                    .Select(i => i.GetCustomAttribute<ResolveTypeAttribute>(true))
+                    .FirstOrDefault(a => a != null);
+            }
+
+            if (attribute != null)
+                className = attribute.TypePrefix + className + attribute.TypePostfix;
+
+            var type = types.FirstOrDefault(q => q.Name.Equals(className));
+
+            if (type == null)
+                throw new SettingsException($"Cannot find implementation '{className}' of '{typeToConvert.Name}'");
 
             object? result = null;
-            if (_serviceProvider != null)
-                result = ActivatorUtilities.CreateInstance(_serviceProvider, type);
 
-            if (result == null)
-                result = Activator.CreateInstance(type);
 
-            serializer.Populate(jObject.CreateReader(), result);
-
-            return result;
+            return rootElement.Deserialize(type, new JsonSerializerOptions(JsonSerializerDefaults.General)
+            {
+                Converters = { new EncodingConverter() }
+            });
         }
+
+
 
         private Type[] LoadPossibleImplementations(Type objectType)
         {
@@ -162,15 +142,15 @@ namespace BlendJson.TypeResolving
                     .Where(t => t.IsSubclassOf(objectType) || objectType == t)).ToArray();
         }
 
-        public override bool CanConvert(Type objectType)
+        public override bool CanConvert(Type typeToConvert)
         {
             if (Interface != null)
             {
-                return objectType == Interface || Implementations!.Contains(objectType);
+                return typeToConvert == Interface || Implementations!.Contains(typeToConvert);
             }
 
-            return objectType.GetCustomAttribute(typeof(ResolveTypeAttribute), true) != null
-                || objectType.GetInterfaces().Any(i => i.GetCustomAttribute(typeof(ResolveTypeAttribute)) != null);
+            return typeToConvert.GetCustomAttribute<ResolveTypeAttribute>(true) != null
+                || typeToConvert.GetInterfaces().Any(i => i.GetCustomAttribute<ResolveTypeAttribute>(true) != null);
         }
     }
 }

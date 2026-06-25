@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.Diagnostics;
 using System.Text.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
 
 namespace BlendJson.Configuration
 {
@@ -21,7 +21,7 @@ namespace BlendJson.Configuration
         public static IDictionary<string, string?> Parse(JsonElement element)
             => new JsonConfigurationFileParser().ParseJson(element);
 
-        public static IDictionary<string, string?> Parse(JObject jToken)
+        public static IDictionary<string, string?> Parse(JsonObject jToken)
             => new JsonConfigurationFileParser().ParseJson(jToken);
 
         private Dictionary<string, string?> ParseStream(Stream input)
@@ -57,7 +57,7 @@ namespace BlendJson.Configuration
             return _data;
         }
 
-        private Dictionary<string, string?> ParseJson(JObject jToken)
+        private Dictionary<string, string?> ParseJson(JsonObject jToken)
         {
             VisitObjectElement(jToken);
 
@@ -79,14 +79,14 @@ namespace BlendJson.Configuration
             SetNullIfElementIsEmpty(isEmpty);
         }
 
-        private void VisitObjectElement(JObject element)
+        private void VisitObjectElement(JsonObject element)
         {
             var isEmpty = true;
 
-            foreach (var property in element.Properties())
+            foreach (var property in element)
             {
                 isEmpty = false;
-                EnterContext(property.Name);
+                EnterContext(property.Key);
                 VisitValue(property.Value);
                 ExitContext();
             }
@@ -109,7 +109,7 @@ namespace BlendJson.Configuration
             SetEmptyIfElementIsEmpty(isEmpty: index == 0);
         }
 
-        private void VisitArrayElement(JArray element)
+        private void VisitArrayElement(JsonArray element)
         {
             var index = 0;
 
@@ -172,16 +172,16 @@ namespace BlendJson.Configuration
             }
         }
 
-        private void VisitValue(JToken value)
+        private void VisitValue(JsonNode value)
         {
             Debug.Assert(_paths.Count > 0);
 
             switch (value)
             {
-                case JObject obj:
+                case JsonObject obj:
                     VisitObjectElement(obj);
                     break;
-                case JArray arr:
+                case JsonArray arr:
                     VisitArrayElement(arr);
                     break;
                default:

@@ -1,12 +1,14 @@
-﻿using System;
+﻿using BlendJson.TypeResolving;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace BlendJson.DataSources
 {
@@ -17,9 +19,10 @@ namespace BlendJson.DataSources
 
         public required string Path { get; init; }
 
+        [JsonConverter(typeof(EncodingConverter))]
         public Encoding? Encoding { get; set; }
 
-        public async Task<(JToken, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode,
+        public async Task<(JsonNode, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode,
             ParseContext context, CancellationToken token)
         {
             if (lastDataSource is ZipDataSource f)
@@ -55,17 +58,17 @@ namespace BlendJson.DataSources
                 switch (mode)
                 {
                     case LoadMode.Json:
-                        return (JToken.Parse(text!), this);
+                        return (JsonNode.Parse(text!), this);
                     case LoadMode.Text:
-                        return (new JValue(text), this);
+                        return (JsonValue.Create(text), this);
                     case LoadMode.Bin:
                         using (var memoryStream = new MemoryStream())
                         {
                             await stream.CopyToAsync(memoryStream, token);
-                            return (JToken.FromObject(memoryStream.ToArray()), this);
+                            return (JsonSerializer.SerializeToNode(memoryStream.ToArray()), this);
                         }
                     case LoadMode.LargeBin:
-                        return (JToken.FromObject(await StreamUtils.LoadLargeBytesFromStreamAsync(stream, token)), this);
+                        return (JsonSerializer.SerializeToNode(await StreamUtils.LoadLargeBytesFromStreamAsync(stream, token)), this);
                     case LoadMode.Lines:
                         var reader = new StreamReader(stream, Encoding);
                         var lines = new List<string>();
@@ -78,7 +81,7 @@ namespace BlendJson.DataSources
                             lines.Add(line);
 
                         }
-                        return (new JArray(lines), this);
+                        return (JsonSerializer.SerializeToNode(lines), this);
                     default:
                         throw new ArgumentOutOfRangeException();
                 }

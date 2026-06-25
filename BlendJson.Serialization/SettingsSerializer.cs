@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Xml;
 using BlendJson.DataSources;
 using BlendJson.TypeResolving;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace BlendJson.Serialization
 {
@@ -17,13 +18,13 @@ namespace BlendJson.Serialization
         private List<JsonConverter> GetJsonConverters() =>
             new List<JsonConverter>()
             {
-                new StringEnumConverter(),
-                new JsonImplConverter(null)
+                new JsonStringEnumConverter(),
+                new JsonImplConverter()
                 {
                     Interface = typeof(IDataSource),
                     Implementations = _dataSourceTypes.ToArray()
                 },
-                new JsonImplConverter(null)
+                new JsonImplConverter()
             };
 
         public async Task SaveZipAsync(object obj, string path)
@@ -53,13 +54,18 @@ namespace BlendJson.Serialization
 
         public string SaveJsonString(object obj)
         {
-            return JsonConvert.SerializeObject(obj, new JsonSerializerSettings()
+            var serializerOptions = new JsonSerializerOptions()
             {
-                NullValueHandling = NullValueHandling.Ignore,
-                Converters = GetJsonConverters(),
-                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-                Formatting = Formatting.Indented
-            });
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                WriteIndented = true
+            };
+
+            foreach (var jsonConverter in GetJsonConverters())
+            {
+                serializerOptions.Converters.Add(jsonConverter);
+            }
+
+            return JsonSerializer.Serialize(obj, serializerOptions);
         }
 
         public void AddDataSource<T>()

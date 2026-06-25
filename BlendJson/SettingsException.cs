@@ -1,12 +1,11 @@
 ﻿using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
 
 namespace BlendJson
 {
     public class SettingsException : Exception
     {
-        public JToken? JToken { get; set; }
+        public JsonNode? JToken { get; set; }
 
         public SettingsException()
         {
@@ -24,7 +23,7 @@ namespace BlendJson
         {
             if (JToken == null)
                 return base.ToString();
-            return JToken.ToString(Formatting.None) + base.ToString();
+            return JToken.GetPath() + "\n" + JToken + "\n" + base.ToString();
         }
     }
 }

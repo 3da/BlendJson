@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using BlendJson.DataSources;
@@ -96,7 +97,7 @@ i",
             var manager = new SettingsLoader();
 
             var jsonSettings = await manager.LoadSettingsAsync("Tmp/settings");
-            var typedSettings = jsonSettings.ToObject<Settings>();
+            var typedSettings = jsonSettings.Deserialize<Settings>();
 
             Assert.AreEqual(JsonConvert.SerializeObject(_settings), JsonConvert.SerializeObject(typedSettings));
         }
@@ -134,7 +135,7 @@ i",
             var manager = new SettingsLoader();
 
             var jsonSettings = await manager.LoadSettingsAsync("Tmp.zip");
-            var typedSettings = jsonSettings.ToObject<Settings>();
+            var typedSettings = jsonSettings.Deserialize<Settings>();
 
             Assert.AreEqual(JsonConvert.SerializeObject(_settings), JsonConvert.SerializeObject(typedSettings));
         }

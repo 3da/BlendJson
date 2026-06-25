@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Text.Json.Nodes;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -44,10 +45,9 @@ namespace BlendJson.Tests
 
             var manager = new SettingsLoader()
             {
-                ServiceProvider = provider
             };
 
-            var settings = manager.LoadSettings<Settings>(JToken.Parse("{ \"Field\": { \"Number\": 59, \"Text\": \"zxc\" }}"));
+            var settings = manager.LoadSettings<Settings>(JsonNode.Parse("{ \"Field\": { \"Number\": 59, \"Text\": \"zxc\" }}"));
 
             Assert.AreEqual("Hello59", settings.Field.Method());
         }

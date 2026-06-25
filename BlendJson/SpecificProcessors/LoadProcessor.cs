@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using BlendJson.SpecificProcessors.Options;
-using Newtonsoft.Json.Linq;
 
 namespace BlendJson.SpecificProcessors
 {
@@ -12,10 +12,10 @@ namespace BlendJson.SpecificProcessors
         public string KeyWord { get; } = "LoadFrom";
         public bool IsPrefix => false;
 
-        public async Task<JToken?> DoAsync(ParseContext context, JToken jOptions, JObject obj, string keyWord,
+        public async Task<JsonNode?> DoAsync(ParseContext context, JsonNode jOptions, JsonObject obj, string keyWord,
             CancellationToken token = default)
         {
-            var options = Common.ParseOptions<LoadOptions>(jOptions, context.Serializer).Single();
+            var options = Common.ParseOptions<LoadOptions>(jOptions, context.SerializerOptions).Single();
 
             context = context.Clone();
 

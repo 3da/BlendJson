@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using BlendJson.DataSources;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using BlendJson.DataSources;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace BlendJson.SpecificProcessors.Options
 {
@@ -11,10 +10,9 @@ namespace BlendJson.SpecificProcessors.Options
 
         public MergePriority Priority { get; set; } = MergePriority.This;
 
-        public MergeNullValueHandling NullValueHandling { get; set; } = MergeNullValueHandling.Merge;
         public bool IgnoreCase { get; set; }
 
-        [JsonProperty(NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public bool? DisableProcessors { get; set; }
 
         public IDictionary<string, object> Parameters { get; set; }

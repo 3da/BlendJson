@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using BlendJson.DataSources;
 using BlendJson.SpecificProcessors.Options;
-using BlendJson.TypeResolving;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
 
 namespace BlendJson.Serialization
 {
-    public class ExternalJsonConverter : JsonConverter
+    public class ExternalJsonConverter : JsonConverter<object>
     {
         private readonly string _path;
         private readonly LoadMode _mode;
         private readonly SerializationContext _context;
-        private readonly JsonSerializer _jsonSerializer;
+        private readonly JsonSerializerOptions _jsonSerializer;
 
         public ExternalJsonConverter(string externalAttrPath,
             LoadMode mode,
@@ -48,14 +46,25 @@ namespace BlendJson.Serialization
 
             _mode = mode;
             _context = context;
-            _jsonSerializer = JsonSerializer.Create(new JsonSerializerSettings()
+            _jsonSerializer = new JsonSerializerOptions()
             {
-                NullValueHandling = NullValueHandling.Ignore,
-                Converters = context.JsonConverters
-            });
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            foreach (var converter in _context.JsonConverters)
+            {
+                _jsonSerializer.Converters.Add(converter);
+            }
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    
+
+        public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
             string path;
             if (_path.Contains("{id}"))
@@ -78,23 +87,12 @@ namespace BlendJson.Serialization
                 DataSource = _context.Writer.CreateDataSource(path)
             };
 
-            var obj = new JObject()
+            var obj = new JsonObject()
             {
-                ["@LoadFrom"] = JObject.FromObject(opt, _jsonSerializer)
+                ["@LoadFrom"] = JsonSerializer.SerializeToNode(opt, _jsonSerializer)
             };
 
-            serializer.Serialize(writer, obj);
-
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            throw new InvalidOperationException();
+            obj.WriteTo(writer, options);
         }
     }
 }

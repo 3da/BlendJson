@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using BlendJson.TypeResolving;
-using Newtonsoft.Json.Serialization;
 
 namespace BlendJson.DocumentationLib
 {

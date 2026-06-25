@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using BlendJson.ParseModes;
-using Newtonsoft.Json.Linq;
+using BlendJson.TypeResolving;
 
 namespace BlendJson.DataSources
 {
@@ -16,9 +17,10 @@ namespace BlendJson.DataSources
 
         public string? WorkDir { get; set; }
 
+        [JsonConverter(typeof(EncodingConverter))]
         public Encoding? Encoding { get; set; }
 
-        public async Task<(JToken, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context,
+        public async Task<(JsonNode, IDataSource)> LoadAsync(IDataSource lastDataSource, LoadMode mode, ParseContext context,
             CancellationToken token)
         {
             var (bestSearchPath, newDataSource) = await GetActualPathAsync(lastDataSource, mode, context, token);
@@ -31,18 +33,18 @@ namespace BlendJson.DataSources
             switch (mode)
             {
                 case LoadMode.Json:
-                    return (JToken.Parse(await fsProvider.LoadTextFileAsync(bestSearchPath!, newDataSource.Encoding!, token)), newDataSource);
+                    return (JsonNode.Parse(await fsProvider.LoadTextFileAsync(bestSearchPath!, newDataSource.Encoding!, token)), newDataSource);
                 case LoadMode.Text:
-                    return (new JValue(await fsProvider.LoadTextFileAsync(bestSearchPath!, newDataSource.Encoding!, token)), newDataSource);
+                    return (JsonValue.Create(await fsProvider.LoadTextFileAsync(bestSearchPath!, newDataSource.Encoding!, token)), newDataSource);
                 case LoadMode.Bin:
-                    return (JToken.FromObject(await fsProvider.LoadBinFileAsync(bestSearchPath!, token)), newDataSource);
+                    return (JsonSerializer.SerializeToNode(await fsProvider.LoadBinFileAsync(bestSearchPath!, token)), newDataSource);
                 case LoadMode.LargeBin:
-                    return (JToken.FromObject(await fsProvider.LoadLargeBinFileAsync(bestSearchPath!, token)), newDataSource);
+                    return (JsonSerializer.SerializeToNode(await fsProvider.LoadLargeBinFileAsync(bestSearchPath!, token)), newDataSource);
                 case LoadMode.Lines:
                     var lines = (await fsProvider.LoadTextFileAsync(bestSearchPath!, newDataSource.Encoding!, token))
                         .Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(q => (object)q.Trim('\r')).ToArray();
-                    return (new JArray(lines), newDataSource);
+                    return (JsonSerializer.SerializeToNode(lines), newDataSource);
                 default:
                     throw new ArgumentOutOfRangeException();
             }

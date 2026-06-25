@@ -4,7 +4,7 @@
 	{
 		public static T[] WrapToArray<T>(this T obj)
 		{
-			return new T[] { obj };
+			return [obj];
 		}
 	}
 }

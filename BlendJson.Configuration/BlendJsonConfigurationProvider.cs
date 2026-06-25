@@ -1,6 +1,6 @@
-﻿using BlendJson.DataSources;
+﻿using System.Text.Json.Nodes;
+using BlendJson.DataSources;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
 
 namespace BlendJson.Configuration
 {
@@ -34,7 +34,7 @@ namespace BlendJson.Configuration
 
         public async Task<IDictionary<string, string?>> LoadAsync()
         {
-            JToken jToken;
+            JsonNode jToken;
             if (DataSource is FileDataSource fileDataSource && ReloadOnChange)
             {
                 JsonReference[] references;
@@ -47,7 +47,7 @@ namespace BlendJson.Configuration
             {
                 jToken = await SettingsLoader.LoadSettingsAsync(DataSource);
             }
-            if (jToken is not JObject jObject)
+            if (jToken is not JsonObject jObject)
                 throw new Exception("JSON file must contains JSON object in root");
             return JsonConfigurationFileParser.Parse(jObject);
         }

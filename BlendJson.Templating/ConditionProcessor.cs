@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using BlendJson.SpecificProcessors;
 using BlendJson.SpecificProcessors.Options;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
-using Newtonsoft.Json.Linq;
 
 namespace BlendJson.Templating
 {
@@ -21,10 +21,10 @@ namespace BlendJson.Templating
 
         public string KeyWord { get; } = "Condition";
         public bool IsPrefix { get; } = false;
-        public async Task<JToken> DoAsync(ParseContext context, JToken jOptions, JObject obj, string keyWord,
+        public async Task<JsonNode> DoAsync(ParseContext context, JsonNode jOptions, JsonObject obj, string keyWord,
             CancellationToken token = default)
         {
-            var options = Common.ParseOptions<ConditionOptions>(jOptions, context.Serializer).Single();
+            var options = Common.ParseOptions<ConditionOptions>(jOptions, context.SerializerOptions).Single();
 
             try
             {

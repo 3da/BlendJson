@@ -1,6 +1,6 @@
 ﻿using BlendJson.TypeResolving;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
 
 namespace BlendJson.Tests
 {
@@ -29,7 +29,7 @@ namespace BlendJson.Tests
         {
             var manager = new SettingsLoader();
 
-            var s = manager.LoadSettings<S>(JToken.Parse("{\"Field\": null, \"Field2\": {\"@Name\": \"C\"}}"));
+            var s = manager.LoadSettings<S>(JsonNode.Parse("{\"Field\": null, \"Field2\": {\"@Name\": \"C\"}}"));
 
             Assert.IsNotNull(s);
             Assert.IsNull(s.Field);

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
 using BlendJson.DataSources;
 using BlendJson.FsProviders;
 using BlendJson.ParseModes;
-using Newtonsoft.Json;
 
 namespace BlendJson
 {
@@ -13,7 +13,7 @@ namespace BlendJson
         public required IDataSource DataSource { get; init; }
         public bool MergeArray { get; set; }
         public required SettingsLoader Manager { get; init; }
-        public JsonSerializer Serializer { get; init; }
+        public JsonSerializerOptions SerializerOptions { get; init; }
         public bool DisableProcessors { get; set; }
         public IDictionary<string, object>? Parameters { get; set; }
         public required IFsProvider FsProvider { get; init; }
@@ -30,7 +30,7 @@ namespace BlendJson
                 DataSource = DataSource,
                 Manager = Manager,
                 MergeArray = MergeArray,
-                Serializer = Serializer,
+                SerializerOptions = SerializerOptions,
                 DisableProcessors = DisableProcessors,
                 Parameters = Parameters != null ? new Dictionary<string, object>(Parameters) : null,
                 FsProvider = FsProvider,

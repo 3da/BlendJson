@@ -1,6 +1,6 @@
-﻿using System.Threading;
+﻿using System.Text.Json.Nodes;
+using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace BlendJson.SpecificProcessors
 {
@@ -10,6 +10,6 @@ namespace BlendJson.SpecificProcessors
 
         bool IsPrefix { get; }
 
-        Task<JToken?> DoAsync(ParseContext context, JToken jOptions, JObject obj, string keyWord, CancellationToken token = default);
+        Task<JsonNode?> DoAsync(ParseContext context, JsonNode jOptions, JsonObject obj, string keyWord, CancellationToken token = default);
     }
 }

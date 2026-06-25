@@ -1,32 +1,36 @@
 ﻿using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace BlendJson.TypeResolving
 {
-    public class ByteArrayConverter : JsonConverter
+    public class ByteArrayConverter : JsonConverter<byte[][]>
     {
-        public override bool CanRead { get; } = true;
+        public override byte[][] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.StartArray)
+            {
+                // Пробуем определить, является ли первый элемент числом (байтом)
+                var readerCopy = reader;
+                readerCopy.Read();
 
-        public override bool CanWrite { get; } = false;
+                if (readerCopy.TokenType == JsonTokenType.Number)
+                {
+                    // Это массив байтов - читаем как byte[]
+                    var byteArray = JsonSerializer.Deserialize<byte[]>(ref reader, options);
+                    return new byte[][] { byteArray };
+                }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+                // Это массив массивов - читаем как byte[][]
+                return JsonSerializer.Deserialize<byte[][]>(ref reader, options);
+            }
+
+            throw new JsonException($"Unexpected token type: {reader.TokenType}");
+        }
+
+        public override void Write(Utf8JsonWriter writer, byte[][] value, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            var token = serializer.Deserialize<JToken>(reader);
-
-            if (token.Type == JTokenType.Bytes)
-                return new byte[1][] { token.Value<byte[]>() };
-            return token.ToObject<byte[][]>();
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(byte[][]);
         }
     }
 }

@@ -1,21 +1,21 @@
 ﻿{
-    "Field": "Value",
-    "ExternalBin": {
-        "@LoadFrom": {
-            "DataSource": {
-                "@Name": "FileDataSource",
-                "Path": "Data0002.bin"
-            },
-            "Mode": "Bin"
-        }
-    },
-    "ExternalJson": {
-        "@LoadFrom": {
-            "DataSource": {
-                "@Name": "FileDataSource",
-                "Path": "Ext0000.json"
-            },
-            "Mode": "Json"
-        }
+  "Field": "Value",
+  "ExternalJson": {
+    "@LoadFrom": {
+      "DataSource": {
+        "@Name": "FileDataSource",
+        "Path": "Ext0000.json"
+      },
+      "Mode": "Json"
     }
+  },
+  "ExternalBin": {
+    "@LoadFrom": {
+      "DataSource": {
+        "@Name": "FileDataSource",
+        "Path": "Data0002.bin"
+      },
+      "Mode": "Bin"
+    }
+  }
 }
