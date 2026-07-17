@@ -35,7 +35,7 @@ namespace BlendJson.Tests
 
 
         [TestMethod]
-        public void TestNoBaseClass()
+        public void TestBaseClass()
         {
             var manager = new SettingsLoader();
 
