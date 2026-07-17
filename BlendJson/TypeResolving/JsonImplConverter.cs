@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace BlendJson.TypeResolving
 {
@@ -97,7 +97,7 @@ namespace BlendJson.TypeResolving
         {
             var types = LoadPossibleImplementations(objectType);
 
-            Type type;
+            Type type = objectType;
 
             var token = JToken.Load(reader);
 
@@ -111,16 +111,8 @@ namespace BlendJson.TypeResolving
             else
             {
                 var classNameProp = jObject.Property("@Name");
-
-                if (classNameProp == null)
-                    throw new SettingsException($"Cannot find property @Name")
-                    {
-                        JToken = jObject
-                    };
-
-                classNameProp.Remove();
-
-                var className = classNameProp.Value.Value<string>();
+                var className = classNameProp?.Value.Value<string>();
+                classNameProp?.Remove();
 
                 ResolveTypeAttribute attribute = objectType.GetCustomAttribute(typeof(ResolveTypeAttribute), true) as ResolveTypeAttribute;
                 if (attribute == null)
@@ -129,13 +121,28 @@ namespace BlendJson.TypeResolving
                         .FirstOrDefault(q => q != null) as ResolveTypeAttribute;
                 }
 
-                if (attribute != null)
-                    className = attribute.TypePrefix + className + attribute.TypePostfix;
 
-                type = types.FirstOrDefault(q => q.Name.Equals(className));
+                if (className != null)
+                {
+                    if (attribute != null)
+                        className = attribute.TypePrefix + className + attribute.TypePostfix;
+                    type = types.FirstOrDefault(q => q.Name.Equals(className));
+                }
+                else if (attribute is {DefaultClass: not null} && attribute.DefaultClass.IsSubclassOf(objectType))
+                {
+                    type = attribute.DefaultClass;
+                }
 
                 if (type == null)
-                    throw new SettingsException($"Cannot find implementation '{className}' of '{objectType.Name}'");
+                {
+                    throw new SettingsException($"Cannot find implementation '{className}' of '{objectType.Name}'") { Path = reader.Path };
+                }
+
+
+                if (!type.IsClass || type.IsAbstract)
+                {
+                    throw new SettingsException("Cannot create object of type: " + type.Name) { Path = reader.Path };
+                }
             }
 
             object? result = null;

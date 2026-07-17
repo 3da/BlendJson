@@ -6,22 +6,23 @@ using Newtonsoft.Json.Linq;
 
 namespace BlendJson.Tests
 {
-	[TestClass]
-	public class HttpTests
-	{
+    [TestClass]
+    [Ignore("HTTP address may be blocked")]
+    public class HttpTests
+    {
 
-		[TestMethod]
-		public async Task Test()
-		{
-			var settingsManager = new SettingsLoader();
+        [TestMethod]
+        public async Task Test()
+        {
+            var settingsManager = new SettingsLoader();
 
             settingsManager.AddDataSource<HttpDataSource>();
 
-			var settings = await settingsManager.LoadSettingsAsync("Data/HttpTest/Settings.json");
+            var settings = await settingsManager.LoadSettingsAsync("Data/HttpTest/Settings.json");
 
-			var expectedSettings = JToken.Parse(await File.ReadAllTextAsync("Data/HttpTest/ExpectedSettings.json"));
+            var expectedSettings = JToken.Parse(await File.ReadAllTextAsync("Data/HttpTest/ExpectedSettings.json"));
 
-			Assert.IsTrue(JToken.DeepEquals(expectedSettings, settings));
-		}
-	}
+            Assert.IsTrue(JToken.DeepEquals(expectedSettings, settings));
+        }
+    }
 }

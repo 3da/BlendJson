@@ -40,7 +40,7 @@ namespace BlendJson.Templating
             {
                 throw new SettingsException($"Error processing: {options.Expression}", e)
                 {
-                    JToken = jOptions
+                    Path = jOptions.Path
                 };
             }
 

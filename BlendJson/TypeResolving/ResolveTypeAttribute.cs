@@ -5,8 +5,9 @@ namespace BlendJson.TypeResolving
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface)]
     public class ResolveTypeAttribute : Attribute
     {
-        public string TypePrefix { get; set; }
-        public string TypePostfix { get; set; }
+        public string? TypePrefix { get; set; }
+        public string? TypePostfix { get; set; }
+        public Type? DefaultClass { get; set; }
 
         public string TrimClassName(string name)
         {

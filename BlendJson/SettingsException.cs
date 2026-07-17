@@ -6,7 +6,7 @@ namespace BlendJson
 {
     public class SettingsException : Exception
     {
-        public JToken? JToken { get; set; }
+        public string? Path { get; set; }
 
         public SettingsException()
         {
@@ -22,9 +22,9 @@ namespace BlendJson
 
         public override string ToString()
         {
-            if (JToken == null)
+            if (Path == null)
                 return base.ToString();
-            return JToken.ToString(Formatting.None) + base.ToString();
+            return "Error at path: " + Path + "\n" + base.ToString();
         }
     }
 }

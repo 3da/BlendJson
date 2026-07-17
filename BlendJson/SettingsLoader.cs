@@ -74,7 +74,7 @@ namespace BlendJson
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
 
-            if (context is {Depth: > 0, GetRefsMode: { } getRefsMode} && dataSource is FileDataSource fileDataSource)
+            if (context is { Depth: > 0, GetRefsMode: { } getRefsMode } && dataSource is FileDataSource fileDataSource)
             {
                 var (path, _) = await fileDataSource.GetActualPathAsync(context.DataSource, mode, context, token);
                 getRefsMode.AddRef(new JsonReference(fileDataSource.Path, path));
@@ -221,11 +221,15 @@ namespace BlendJson
 
                 return jToken;
             }
+            catch (SettingsException e)
+            {
+                throw;
+            }
             catch (Exception e)
             {
-                throw new SettingsException($"Error procesing JToken: {jToken.Path}", e)
+                throw new SettingsException($"Error processing JToken", e)
                 {
-                    JToken = jToken
+                    Path = jToken.Path
                 };
             }
 
@@ -297,10 +301,7 @@ namespace BlendJson
                     }
                     catch (Exception e)
                     {
-                        throw new SettingsException($"Error processing {specialProperty.Name} ({jobj.Path})", e)
-                        {
-                            JToken = specialProperty.Token.Value
-                        };
+                        throw new SettingsException($"Error processing {specialProperty.Name}", e) { Path = jObject.Path };
                     }
 
 
