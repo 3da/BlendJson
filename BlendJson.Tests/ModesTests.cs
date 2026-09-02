@@ -16,5 +16,26 @@ namespace BlendJson.Tests
 
             Assert.AreEqual(JToken.Parse(await File.ReadAllTextAsync("Data/LoadModes/Expected.json")).ToString(), settings.ToString());
         }
+
+        [TestMethod]
+        public async Task TestShort()
+        {
+            var manager = new SettingsLoader();
+            var settings = await manager.LoadSettingsAsync("Data/LoadModes/Settings_short.json");
+
+            Assert.AreEqual(JToken.Parse(await File.ReadAllTextAsync("Data/LoadModes/Expected.json")).ToString(), settings.ToString());
+        }
+
+        [TestMethod]
+        public async Task TestBad()
+        {
+            var manager = new SettingsLoader();
+
+            await Assert.ThrowsExactlyAsync<SettingsException>(() => manager.LoadSettingsAsync("Data/LoadModes/Settings_bad0.json"));
+
+            await Assert.ThrowsExactlyAsync<SettingsException>(() => manager.LoadSettingsAsync("Data/LoadModes/Settings_bad1.json"));
+
+
+        }
     }
 }

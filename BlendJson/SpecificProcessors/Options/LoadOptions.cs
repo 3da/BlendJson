@@ -24,7 +24,7 @@ namespace BlendJson.SpecificProcessors.Options
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool? DisableProcessors { get; set; }
 
-        public IDictionary<string, object> Parameters { get; set; }
+        public IDictionary<string, object>? Parameters { get; set; }
 
         public void FillFromString(string str)
         {

@@ -1,0 +1,11 @@
+﻿{
+  "Binary": {
+    "@LoadFrom-Bin": "Binary.bin"
+  },
+  "Lines": {
+    "@LoadFrom-Lines": "Lines.txt"
+  },
+  "Text": {
+    "@LoadFrom-Text": "MultilineText.txt"
+  }
+}
